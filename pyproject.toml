@@ -4,8 +4,8 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 authors = [
-    { name = "Ula Kaminska", email = "s28722@pjwstk.edu.pl" },
-    { name = "Ula Kaminska", email = "s28722@pjwstk.edu.pl" }
+    { name = "Ula Kaminska", email = "urkamins@student.42warsaw.pl" },
+    { name = "Vineet Jain", email = "vijain@student.42warsaw.pl" }
 ]
 requires-python = ">=3.10"
 dependencies = [
@@ -13,7 +13,3 @@ dependencies = [
     "mypy>=2.4.1",
     "pytest>=9.2.0",
 ]
-
-[build-system]
-requires = ["uv_build>=0.13.7,<0.14.0"]
-build-backend = "uv_build"
