@@ -7,7 +7,7 @@ install:
 run:
 	${UV} python3 ${SCRIPT} ${CONFIG}
 debug:
-	${UV} python3 ${SCRIPT} ${CONFIG} --pdb
+	${UV} python3 -m pdb ${SCRIPT} ${CONFIG}
 test:
 
 clean:
