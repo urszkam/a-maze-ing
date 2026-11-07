@@ -6,7 +6,8 @@ class MenuOption(IntEnum):
     SHOW_HIDE = 2
     ROTATE_WALL_COLORS = 3
     ROTATE_42_COLORS = 4
-    EXIT = 5
+    CHANGE_ALGORITHM = 5
+    EXIT = 6
 
 
 class Dir(IntEnum):
