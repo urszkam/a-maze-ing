@@ -11,6 +11,9 @@
 - [Algorithm](#algorithm)
 - [Package](#package)
 - [Resources](#resources)
+    - [Maze Algorithms](#maze-algorithms)
+    - [Python Libraries](#python-libraries)
+    - [AI usage](#ai-usage)
 - [Project Management](#project-management)
 
 ## Description
@@ -31,8 +34,24 @@
 • What part of your code is reusable, and how
 
 ## Resources
-• section listing classic references related to the topic (documentation, articles, tutorials, etc.), as well as a description of how AI was used —
-specifying for which tasks and which parts of the project
+
+### Maze Algorithms:
+- [Backtracking algotithms](https://www.geeksforgeeks.org/dsa/backtracking-algorithms/)
+- [Maze generation algotirhms](https://www.maze-generator.net/algorithms)
+- [Kruskal's algorithm](https://www.programiz.com/dsa/kruskal-algorithm)
+- [Kruskal's algorithm visualization](https://www.youtube.com/watch?v=8HeLu8wuLqo)
+- [Braiding a maze](https://mazeprintables.com/blog/perfect-vs-braid-mazes?utm_source=chatgpt.com#braid-a-copy-without-losing-track)
+
+### Python Libraries:
+- [uv PyPI documentation](https://pypi.org/project/uv/)
+- [uv configuration](https://docs.astral.sh/uv/concepts/projects/config/)
+- [rich library documentation for TUI creation](https://rich.readthedocs.io/en/latest/introduction.html)
+- [readchar library](https://pypi.org/project/readchar/)
+- [NumPy user guide](https://numpy.org/doc/2.2/user/index.html#user)
+- [Pydantic validation](https://pydantic.dev/docs/validation/latest/get-started/)
+
+### AI usage:
+- generate list of unicode characters for maze representation
 
 ## Project Management
 • Your team and project management with:
