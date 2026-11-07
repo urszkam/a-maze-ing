@@ -15,11 +15,17 @@ class ConsolePrinter(Console):
     _initialized: bool = False
 
     def __new__(cls) -> ConsolePrinter:
+        """Create singleton console printer instance.
+
+        Returns:
+            The existing or newly created instance.
+        """
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
 
     def __init__(self) -> None:
+        """Initialize the console and its theme. """
         if self._initialized:
             return
 
@@ -29,19 +35,21 @@ class ConsolePrinter(Console):
 
         self._initialized = True
 
-    def header(self, header: str) -> None:
-        self.print(header, style="txt.header")
-
-    def menu(self, menu: str) -> None:
-        self.print(menu, style="txt.menu")
-
-    def option(self, options: str) -> None:
-        self.print(options, style="txt.options", end="")
 
     def error(self, error: str) -> None:
+        """Print formatted error message.
+
+        Args:
+            error: Error message.
+        """
         self.print(error, style="txt.error")
 
     def _update_color(self, style: str) -> None:
+        """Rotate colors of a chosen element.
+
+        Args:
+            style: style of a chosen element printed by Console.
+        """
         current_style = self._theme.styles[style]
         current_color = current_style.color
         color = (
@@ -57,12 +65,18 @@ class ConsolePrinter(Console):
         )
 
     def update_wall_color(self) -> None:
+        """Change maze wall color.
+        """
         self._update_color("maze.wall")
 
     def update_42_color(self) -> None:
+        """Change 42 logo color.
+        """
         self._update_color("maze.42")
 
     def show_hide_path(self) -> None:
+        """Show/hide maze path by switching the conceal value.
+        """
         current_style = self._theme.styles["maze.path"]
         new_conceal = not current_style.conceal
 
@@ -74,6 +88,17 @@ class ConsolePrinter(Console):
 class MazeText(Text):
     @staticmethod
     def get_wall_text(dir: Dir, row: int, col: int, maze: np.ndarray) -> str:
+        """Generates maze elements for a single cell level.
+
+        Args:
+            dir: Direction of current maze cell element.
+            row: Row index of the cell.
+            col: Column index of the cell.
+            maze: 2D array of values describing walls for each cell.
+
+        Returns:
+            String with characters to be preinted as cell elements.
+        """
         cell = maze[row][col]
         cell = 15 if cell == -1 else cell
 
@@ -139,28 +164,43 @@ class MazeText(Text):
                 return prefix + "   " + sufix
             case _: return ""
 
-    def append_wall(self, char: str) -> None:
-        self.append(char, style="maze.wall")
+    def append_wall(self, chars: str) -> None:
+        """Add maze wall characters to be printed.
 
-    def append_wall_logo(self, char: str) -> None:
-        self.append(char[0], style="maze.wall")
-        self.append(char[1:4], style="maze.42")
+        Args:
+            chars: Characters of maze wall.
+        """
+        self.append(chars, style="maze.wall")
 
-        if len(char) > 4:
-            self.append(char[4:], style="maze.wall")
+    def append_wall_logo(self, chars: str) -> None:
+        """Add wall characters of cells containing 42 logo to be printed.
+
+        Args:
+            chars: Characters of maze wall.
+        """
+        self.append(chars[0], style="maze.wall")
+        self.append(chars[1:4], style="maze.42")
+
+        if len(chars) > 4:
+            self.append(chars[4:], style="maze.wall")
 
     def append_logo(self) -> None:
+        """Add 42 logo characters to be printed. """
         self.append(WALL["logo"], style="maze.42")
 
     def append_path(self) -> None:
+        """Add maze path characters to be printed. """
         self.append(WALL["path"], style="maze.path")
 
     def append_entry(self) -> None:
+        """Add entry character to be printed. """
         self.append(WALL["entry"][:2], style="maze.entry")
         self.append_path()
 
     def append_exit(self) -> None:
+        """Add exit character to be printed. """
         self.append(WALL["entry"], style="maze.exit")
 
     def append_nl(self) -> None:
+        """Add new line character. """
         self.append("\n")

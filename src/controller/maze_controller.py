@@ -18,6 +18,12 @@ cp = ConsolePrinter()
 
 
 def _choose_option() -> tuple[MenuOption | None, str]:
+    """Choose one of menu options to perform action.
+
+    Returns:
+        Chosen MenuOption or None in case of incorrect choice.
+        Error mesage in case of incorrect choice.
+    """
     key = readkey()
     try:
         option_num = int(key)
@@ -31,7 +37,13 @@ def _choose_option() -> tuple[MenuOption | None, str]:
 
 
 def _display_maze(generator: MazeGenerator) -> MazeText:
-    """
+    """Generate new maze and prepare it for terminal display.
+
+    Args:
+        generator: object responsible for maze generation.
+
+    Returns:
+        Text representation of the generated maze.
     """
     maze: np.ndarray = generator.generate_maze()
     maze_text = MazeText()
@@ -79,6 +91,15 @@ def _display_maze(generator: MazeGenerator) -> MazeText:
 
 
 def _build_frame(maze_text: Text, error_msg: str = "") -> Group:
+    """Create frame for specific TUI objects.
+
+    Args:
+        maze_text: Text representation of the maze.
+        error_msg: Optional error message caused by option choice.
+
+    Returns:
+        Group of TUI objects: maze, menu, options prompt, error placeholder.
+    """
     header, menu = MENU.split("\n", 1)
     option_msg = f"Choose {min(MenuOption).value} - {max(MenuOption).value}: "
 
@@ -92,6 +113,15 @@ def _build_frame(maze_text: Text, error_msg: str = "") -> Group:
 
 
 def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
+    """Animate new maze display line by line.
+
+    Args:
+        live: Active Rich Live display to be updated.
+        generator: Object that generates maze.
+
+    Returns:
+        Text representation of maze.
+    """
     maze_text = _display_maze(generator)
     lines = maze_text.split("\n", allow_blank=True)
 
@@ -107,7 +137,10 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
 def run_app(
         config: dict[str, Any] = {"width": 9, "height": 9,
                                   "entry": (0, 0), "exit": (0, 2)}) -> None:
-    """
+    """Run the maze TUI application.
+
+    Args:
+        config: TODO placeholder for tests.
     """
     try:
         generator = MazeGenerator(config)

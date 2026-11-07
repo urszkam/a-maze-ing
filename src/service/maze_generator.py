@@ -11,7 +11,17 @@ class MazeGenerator:
     _instance: MazeGenerator | None = None
     _initialized: bool = False
 
-    def __new__(cls, config: dict[str, Any]) -> MazeGenerator:
+    def __new__(
+            cls, config: dict[str, tuple[int, int] | bool | str]
+            ) -> MazeGenerator:
+        """Create singleton maze generator instance.
+
+        Args:
+            config: Maze settings passed to the initializer.
+
+        Returns:
+            The existing or newly created instance.
+        """
         if cls._instance is None:
             cls._instance = super().__new__(cls)
 
@@ -19,6 +29,12 @@ class MazeGenerator:
 
     def __init__(
             self, config: dict[str, tuple[int, int] | bool | str]) -> None:
+        """Initialize the maze generator instance.
+
+        Args:
+            config: Maze settings, including
+                dimensions and entry and exit coordinates.
+        """
         if self._initialized:
             return
         self._maze = None
@@ -27,20 +43,28 @@ class MazeGenerator:
 
     @property
     def entry(self) -> tuple[int, int]:
+        """TODO Will be removed. """
         return self._config["entry"]
 
     @property
     def exit(self) -> tuple[int, int]:
+        """TODO Will be removed. """
         return self._config["exit"]
 
     @property
     def maze(self) -> np.ndarray | None:
+        """TODO Will be removed. """
         return self._maze
 
-    def update_config(self, config: dict[str, Any]) -> None:
-        self._config = config
-
     def _insert_42(self, matrix: np.ndarray) -> None:
+        """Place the 42 logo cells in the initial maze as -1.
+
+        Args:
+            matrix: initial 2d array filled with number 15.
+
+        Raises:
+            Exception: When config area is not enough for logo and proper maze.
+        """
         logo42 = np.array(LOGO42)
         logo_rows, logo_cols = logo42.shape
         matrix_rows, matrix_cols = matrix.shape
@@ -60,6 +84,11 @@ class MazeGenerator:
         ] = np.where(logo42 == 1, -1, 15)
 
     def generate_maze(self) -> np.ndarray:
+        """Generate a maze using an algorithm.
+
+        Returns:
+            2d maze array with binary walls representation.
+        """
         initial_matrix: np.ndarray = np.full(
             (self._config["height"], self._config["width"]), 15
         )
@@ -73,6 +102,11 @@ class MazeGenerator:
         return initial_matrix
 
     def generate_path(self) -> list[tuple[int, int]]:
+        """Generate maze path from entry to exit.
+
+        Returns:
+            Coordinates of every cell in the path.
+        """
         path: list[tuple[int, int]] = []
 
         if self._maze is None or self._maze.isEmpty():
