@@ -3,6 +3,7 @@ CONFIG	= config.txt
 UV		= uv run
 
 install:
+	pip install uv
 	uv sync
 run:
 	${UV} python3 ${SCRIPT} ${CONFIG}
