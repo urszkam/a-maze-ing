@@ -3,14 +3,16 @@ from time import sleep
 from typing import Any
 
 import numpy as np
+
 from readchar import readkey
 from rich.console import Group
 from rich.live import Live
 from rich.text import Text
 
-from ..constants import Dir, MENU, WALL
 from ..service import MazeGenerator
+from ..constants import MENU, WALL
 from .console_printer import ConsolePrinter, MazeText
+from ..constants import Dir
 
 
 cp = ConsolePrinter()
@@ -44,7 +46,8 @@ def _choose_option() -> tuple[MenuOption | None, str]:
     return None, f"Value outside the requested range: {option_num}"
 
 
-def _display_maze(generator: MazeGenerator, maze: np.ndarray) -> MazeText:
+def _display_maze(
+        generator: MazeGenerator, maze: np.ndarray) -> MazeText:
     """Render a maze snapshot for terminal display.
 
     Args:
@@ -77,10 +80,7 @@ def _display_maze(generator: MazeGenerator, maze: np.ndarray) -> MazeText:
                         maze_text.append_wall(WALL["empty"])
 
                 wall_text = MazeText.get_wall_text(
-                    dir=dir,
-                    row=row_idx,
-                    col=col_idx,
-                    maze=maze,
+                    dir=dir, row=row_idx, col=col_idx, maze=maze
                 )
                 if is_logo and dir is Dir.S:
                     maze_text.append_wall_logo(wall_text)
@@ -94,10 +94,9 @@ def _display_maze(generator: MazeGenerator, maze: np.ndarray) -> MazeText:
 
 
 def _build_frame(
-    maze_text: Text,
-    algorithm_name: str,
-    error_msg: str = "",
-) -> Group:
+        maze_text: Text,
+        algorithm_name: str,
+        error_msg: str = "") -> Group:
     """Create frame for specific TUI objects.
 
     Args:
@@ -133,10 +132,8 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
     path_visible: bool = cp.show_hide_path(False)
     for maze in generator.generate_maze_frames():
         maze_text = _display_maze(generator, maze)
-        live.update(
-            _build_frame(maze_text, generator.algorithm_name),
-            refresh=True,
-        )
+        live.update(_build_frame(
+            maze_text, generator.algorithm_name), refresh=True)
         sleep(0.01)
     cp.show_hide_path(path_visible)
 
@@ -144,13 +141,8 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
 
 
 def run_app(
-    config: dict[str, Any] = {
-        "width": 15,
-        "height": 19,
-        "entry": (0, 0),
-        "exit": (0, 2),
-    },
-) -> None:
+        config: dict[str, Any] = {"width": 13, "height": 13,
+                                  "entry": (0, 0), "exit": (0, 2)}) -> None:
     """Run the maze TUI application.
 
     Args:
@@ -171,23 +163,19 @@ def run_app(
         while option != MenuOption.EXIT:
             live.update(
                 _build_frame(maze_text, generator.algorithm_name, error_msg),
-                refresh=True,
+                refresh=True
             )
 
             option, error_msg = _choose_option()
-            match option:
-                case MenuOption.ROTATE_WALL_COLORS:
-                    cp.update_wall_color()
-                case MenuOption.ROTATE_42_COLORS:
-                    cp.update_42_color()
-                case MenuOption.SHOW_HIDE:
-                    cp.show_hide_path()
+            match (option):
+                case MenuOption.ROTATE_WALL_COLORS: cp.update_wall_color()
+                case MenuOption.ROTATE_42_COLORS: cp.update_42_color()
+                case MenuOption.SHOW_HIDE: cp.show_hide_path()
                 case MenuOption.REGENERATE:
                     maze_text = _animate_maze(live, generator)
                 case MenuOption.CHANGE_ALGORITHM:
                     generator.next_algorithm()
                     maze_text = _animate_maze(live, generator)
-                case _:
-                    continue
+                case _: continue
 
     cp.print("Bye bye!")
