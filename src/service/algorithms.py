@@ -2,9 +2,16 @@ from __future__ import annotations
 
 import random
 from abc import ABC, abstractmethod
+from collections import Counter
 from enum import Enum
+from functools import reduce
+from typing import TypeAlias
 
 import numpy as np
+
+
+Node: TypeAlias = tuple[int, int]
+Edge: TypeAlias = tuple[Node, Node]
 
 
 class MazeAlgorithm(ABC):
@@ -14,9 +21,9 @@ class MazeAlgorithm(ABC):
     def generate_open_edges(
         self,
         shape: tuple[int, int],
-        logo_coords: list[tuple[int, int]],
+        logo_coords: list[Node],
         is_perfect: bool = True
-    ) -> list[tuple[tuple[int, int], tuple[int, int]]]:
+    ) -> list[Edge]:
         """Select passages between adjacent non-logo cells.
 
         Args:
@@ -29,19 +36,42 @@ class MazeAlgorithm(ABC):
         """
         ...
 
-    def _remove_dead_ends(
-        self,
-        open_edges: list[tuple[tuple[int, int], tuple[int, int]]]
-    ) -> list[tuple[tuple[int, int], tuple[int, int]]]:
-        """Removes dead-ends.
+    def _remove_dead_ends(self, open_edges: list[Edge]) -> None:
+        """Open extra passages from dead ends to eligible neighbors.
 
         Args:
             open_edges: Existing passages between neighbor cells.
 
-        Returns:
-            The list of passages with no nead-ends.
+        Dead ends without an eligible neighboring passage remain unchanged.
         """
-        return open_edges
+        nodes_from_open_edges: tuple[Node, ...] = sum(
+            open_edges, ())
+        nodes_counter = Counter(nodes_from_open_edges)
+        dead_ends: list[Node] = [node for node in nodes_counter
+                     if nodes_counter[node] == 1]
+
+        for dead_end in dead_ends:
+            if nodes_counter[dead_end] > 1:
+                continue
+
+            row, col = dead_end
+            neighbors: list[Node] = [(row + 1, col), (row - 1, col),
+                         (row, col + 1), (row, col - 1)]
+            neighbors_counter: dict[Node, int] = {
+                node: nodes_counter[node]
+                for node in neighbors
+                if node in nodes_counter
+                and tuple(sorted((dead_end, node))) not in open_edges
+            }
+
+            if not neighbors_counter:
+                continue
+
+            node_to_pass: Node = min(neighbors_counter, key=neighbors_counter.__getitem__)
+            nodes_counter[node_to_pass] += 1
+            nodes_counter[dead_end] += 1
+            new_open_edge: Edge = (min(node_to_pass, dead_end), max(node_to_pass, dead_end))
+            open_edges.append(new_open_edge)
 
 
 class KruskalAlgorithm(MazeAlgorithm):
@@ -49,9 +79,9 @@ class KruskalAlgorithm(MazeAlgorithm):
     def generate_open_edges(
         self,
         shape: tuple[int, int],
-        logo_coords: list[tuple[int, int]],
-        is_perfect: bool = True
-    ) -> list[tuple[tuple[int, int], tuple[int, int]]]:
+        logo_coords: list[Node],
+        is_perfect: bool = False
+    ) -> list[Edge]:
         """Build a spanning forest of the grid, excluding logo cells.
 
         Args:
@@ -63,14 +93,15 @@ class KruskalAlgorithm(MazeAlgorithm):
             Randomly selected passages connecting each reachable component.
         """
         zero_matrix: np.ndarray = np.zeros(shape)
-        nodes: list[tuple[int, int]] = [
+        nodes: list[Node] = [
             tuple(coords) for coords in np.argwhere(zero_matrix == 0)
             if tuple(coords) not in logo_coords
         ]
-        nodes_map: dict[tuple[int, int], tuple[int, int]] = {
+
+        nodes_map: dict[Node, Node] = {
             coords: coords for coords in nodes}
 
-        edges: list[tuple[tuple[int, int], tuple[int, int]]] = []
+        edges: list[Edge] = []
         for x, y in nodes:
             for neighbor in ((x + 1, y), (x, y + 1)):
                 if neighbor in nodes_map:
@@ -78,7 +109,7 @@ class KruskalAlgorithm(MazeAlgorithm):
 
         random.shuffle(edges)
 
-        open_edges: list[tuple[tuple[int, int], tuple[int, int]]] = []
+        open_edges: list[Edge] = []
         for neighbor_nodes in edges:
             if self._is_on_different_path(neighbor_nodes, nodes_map):
                 self._union(neighbor_nodes, nodes_map, open_edges)
@@ -90,9 +121,9 @@ class KruskalAlgorithm(MazeAlgorithm):
 
     def _union(
             self,
-            nodes: tuple[tuple[int, int], tuple[int, int]],
-            nodes_map: dict[tuple[int, int], tuple[int, int]],
-            open_edges: list[tuple[tuple[int, int], tuple[int, int]]]
+            nodes: Edge,
+            nodes_map: dict[Node, Node],
+            open_edges: list[Edge]
             ) -> None:
         """Merge two disjoint sets and record the passage between their cells.
 
@@ -103,15 +134,15 @@ class KruskalAlgorithm(MazeAlgorithm):
         """
         node1, node2 = nodes
 
-        root1: tuple[int, int] = self._find(node1, nodes_map)
-        root2: tuple[int, int] = self._find(node2, nodes_map)
+        root1: Node = self._find(node1, nodes_map)
+        root2: Node = self._find(node2, nodes_map)
         nodes_map[root1] = root2
 
         open_edges.append(nodes)
 
-    def _find(self, node: tuple[int, int],
-              nodes_map: dict[tuple[int, int], tuple[int, int]]
-              ) -> tuple[int, int]:
+    def _find(self, node: Node,
+              nodes_map: dict[Node, Node]
+              ) -> Node:
         """Follow parent links to find the representative of a cell's set.
 
         Args:
@@ -127,8 +158,8 @@ class KruskalAlgorithm(MazeAlgorithm):
         return node
 
     def _is_on_different_path(
-            self, nodes: tuple[tuple[int, int], tuple[int, int]],
-            nodes_map: dict[tuple[int, int], tuple[int, int]]
+            self, nodes: Edge,
+            nodes_map: dict[Node, Node]
             ) -> bool:
         """Check whether two cells belong to different disjoint sets.
 

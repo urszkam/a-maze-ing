@@ -72,15 +72,16 @@ class ConsolePrinter(Console):
         """
         self._update_color("maze.42")
 
-    def show_hide_path(self) -> None:
-        """Show/hide maze path by switching the conceal value.
-        """
+    def show_hide_path(self, visible: bool | None = None) -> bool:
+        """Toggle or set path visibility and return its previous value."""
         current_style = self._theme.styles["maze.path"]
-        new_conceal = not current_style.conceal
-
+        was_visible = not current_style.conceal
+        if visible is None:
+            visible = not was_visible
         self._theme.styles["maze.path"] = (
-            current_style + Style(conceal=new_conceal)
+            current_style + Style(conceal=not visible)
         )
+        return was_visible
 
 
 class MazeText(Text):
@@ -110,40 +111,58 @@ class MazeText(Text):
         prev = 0 if col == 0 else maze[row][col - 1]
         bottom = 0 if is_last_row else maze[row + 1][col]
 
-        # TODO implement missing borders
+        prev_south = prev & Dir.S
+        bottom_west = bottom & Dir.W
+
         # TODO divide this spaghetti into helper functions
         prefix = " "
         sufix = ""
-        match (dir):
-            case Dir.N:
-                if col == 0 and row == 0:
-                    prefix = WALL["top_left"]
-                elif west:
-                    prefix = WALL["top_join"]
-                else:
-                    prefix = WALL["horizontal"][0]
-                if is_last_col and row == 0:
-                    sufix = WALL["top_right"]
-            case Dir.S:
-                if west and south:
-                    if not prev & Dir.S and not bottom & Dir.W:
+        if dir is Dir.N:
+            if col == 0:
+                prefix = WALL["top_left"]
+            elif west:
+                prefix = WALL["top_join"]
+            else:
+                prefix = WALL["horizontal"][0]
+            if is_last_col:
+                sufix = WALL["top_right"]
+        elif dir is Dir.S:
+            if west:
+                if south:
+                    if not prev_south and not bottom_west:
                         prefix = WALL["bottom_left"]
-                    elif not prev & Dir.S and bottom & Dir.W:
+                    elif not prev_south and bottom_west:
                         prefix = WALL["left_join"]
-                    elif prev & Dir.S and bottom & Dir.W:
+                    elif prev_south and bottom_west:
                         prefix = WALL["cross"]
-                    elif prev & Dir.S and not bottom & Dir.W:
+                    elif prev_south and not bottom_west:
                         prefix = WALL["bottom_join"]
+                else:
+                    if not prev_south and bottom_west:
+                        prefix = WALL["vertical"]
+                    elif prev_south and not bottom_west:
+                        prefix = WALL["bottom_right"]
+                    elif prev_south and bottom_west:
+                        prefix = WALL["right_join"]
+            else:
+                if south:
+                    if prev_south and not bottom_west:
+                        prefix = WALL["horizontal"][0]
+                    if prev_south and bottom_west:
+                        prefix = WALL["top_join"]
+                    if not prev_south and bottom_west:
+                        prefix = WALL["top_left"]
 
-                elif col == 0:
-                    prefix = WALL["vertical"]
+                else:
+                    if prev_south and bottom_west:
+                        prefix = WALL["top_right"]
 
-                if is_last_row and is_last_col:
-                    sufix = WALL["bottom_right"]
-                elif is_last_col and south:
-                    sufix = WALL["right_join"]
-                elif is_last_col:
-                    sufix = WALL["vertical"]
+            if is_last_row and is_last_col:
+                sufix = WALL["bottom_right"]
+            elif is_last_col and south:
+                sufix = WALL["right_join"]
+            elif is_last_col:
+                sufix = WALL["vertical"]
 
         match (dir):
             case Dir.W:
