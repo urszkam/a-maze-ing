@@ -1,9 +1,11 @@
+"""Prepare maze grids and apply passages selected by an algorithm."""
+
 from __future__ import annotations
 
 import numpy as np
-from typing import Any, Iterator, TypeAlias, cast
+from typing import Iterator, TypeAlias
 
-from ..constants import Dir, LOGO42
+from src.constants import LOGO42, Dir
 from .algorithms import AlgorithmType, MazeAlgorithm
 
 
@@ -12,11 +14,12 @@ Edge: TypeAlias = tuple[Node, Node]
 
 
 class MazeGenerator:
+    """Manage a singleton maze, its configuration and selected algorithm."""
     _instance: MazeGenerator | None = None
     _initialized: bool = False
 
     def __new__(
-            cls, config: dict[str, Any]
+            cls, config: dict[str, tuple[int, int] | bool | str]
             ) -> MazeGenerator:
         """Create singleton maze generator instance.
 
@@ -32,7 +35,7 @@ class MazeGenerator:
         return cls._instance
 
     def __init__(
-            self, config: dict[str, Any]) -> None:
+            self, config: dict[str, tuple[int, int] | bool | str]) -> None:
         """Initialize the maze generator instance.
 
         Args:
@@ -41,7 +44,7 @@ class MazeGenerator:
         """
         if self._initialized:
             return
-        self._maze: np.ndarray | None = None
+        self._maze = None
         self._logo_coords: list[Node] = []
         self._config = config
         self.register_algorithm()
@@ -57,16 +60,16 @@ class MazeGenerator:
     @property
     def entry(self) -> Node:
         """Return the configured entry coordinates as (row, column)."""
-        return cast(Node, self._config["entry"])
+        return self._config["entry"]
 
     @property
     def exit(self) -> Node:
         """Return the configured exit coordinates as (row, column)."""
-        return cast(Node, self._config["exit"])
+        return self._config["exit"]
 
     @property
     def maze(self) -> np.ndarray | None:
-        """TODO Will be removed. """
+        """Return the stored maze array, or None before generation."""
         return self._maze
 
     @property
@@ -158,42 +161,50 @@ class MazeGenerator:
         Returns:
             2d maze array with binary walls representation.
         """
-        for _ in self.generate_maze_frames():
-            pass
-        assert self._maze is not None
+        for maze in self.generate_maze_frames():
+            self._maze = maze
+
+        if self._maze is None:
+            raise RuntimeError("Maze generation produced no frames.")
+
         return self._maze
 
     def generate_maze_frames(self) -> Iterator[np.ndarray]:
-        """Yield a closed grid, then up to 30 frames scaled to non-logo area.
+        """Return the maze step by step, with at most 30 animation frames.
 
         Yields:
-            Independent grid snapshots, ending with the stored finished maze.
+            Separate maze snapshots, ending with the completed maze.
         """
         matrix: np.ndarray = np.full(
-            (int(self._config["height"]), int(self._config["width"])), 15
+            (self._config["height"], self._config["width"]), 15
         )
         self._insert_42(matrix)
         self._logo_coords = self._get_logo_coords(matrix)
+
         registered_algorithm: MazeAlgorithm = self._maze_algorithm.algorithm
         open_edges = registered_algorithm.generate_open_edges(
-            matrix.shape, self._logo_coords, is_perfect=False)
+            matrix.shape, self._logo_coords)
+        
         matrix[matrix == -1] = 15
         yield matrix.copy()
 
-        cell_count = matrix.size - len(self._logo_coords)
-        frame_count = min(30, len(open_edges), max(1, (cell_count + 4) // 5))
+        frame_count = min(
+            30, len(open_edges),
+            max(1, (matrix.size - len(self._logo_coords) + 4) // 5)
+        )
         for frame in range(frame_count):
-            start = frame * len(open_edges) // frame_count
-            end = (frame + 1) * len(open_edges) // frame_count
-            self._open_maze_walls(matrix, open_edges[start:end])
+            first_edge = frame * len(open_edges) // frame_count
+            last_edge = (frame + 1) * len(open_edges) // frame_count
+            self._open_maze_walls(matrix, open_edges[first_edge:last_edge])
             yield matrix.copy()
+
         self._maze = matrix.copy()
 
     def generate_path(self) -> list[Node]:
-        """Return a placeholder path when a maze has been generated.
+        """
 
         Returns:
-            Coordinates of every cell in the path.
+
         """
         path: list[Node] = []
 
