@@ -12,8 +12,7 @@ debug:
 test:
 
 clean:
-	rm -rf .mypy_cache
-	find . -name '__pycache__' -type d -exec rm -rf {} +
+	find . -name '*cache*' -type d -exec rm -rf {} +
 lint:
 	${UV} flake8 .
 	${UV} mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs

@@ -36,16 +36,18 @@ def _choose_option() -> tuple[MenuOption | None, str]:
     return None, f"Value outside the requested range: {option_num}"
 
 
-def _display_maze(generator: MazeGenerator) -> MazeText:
-    """Generate new maze and prepare it for terminal display.
+def _display_maze(
+        generator: MazeGenerator, maze: np.ndarray) -> MazeText:
+    """Render a maze snapshot for terminal display.
 
     Args:
-        generator: object responsible for maze generation.
+        generator: Object responsible for maze generation.
+        maze: Grid snapshot to render.
 
     Returns:
         Text representation of the generated maze.
     """
-    maze: np.ndarray = generator.generate_maze()
+    logo_coords = generator.logo_coords
     maze_text = MazeText()
 
     # path for tests:
@@ -61,11 +63,11 @@ def _display_maze(generator: MazeGenerator) -> MazeText:
         for dir in Dir:
             if dir is Dir.N and row_idx != 0:
                 continue
-            for col_idx, col_val in enumerate(row):
+            for col_idx in range(len(row)):
                 if dir is Dir.W and col_idx != 0:
                     continue
 
-                is_logo = col_val == -1
+                is_logo = (row_idx, col_idx) in logo_coords
                 if dir is dir.E:
                     if is_logo:
                         maze_text.append_logo()
@@ -113,7 +115,7 @@ def _build_frame(maze_text: Text, error_msg: str = "") -> Group:
 
 
 def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
-    """Animate new maze display line by line.
+    """Animate passage opening with duration proportional to maze size.
 
     Args:
         live: Active Rich Live display to be updated.
@@ -122,20 +124,19 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
     Returns:
         Text representation of maze.
     """
-    maze_text = _display_maze(generator)
-    lines = maze_text.split("\n", allow_blank=True)
-
-    for count in range(1, len(lines) + 1):
-        visible = Text("\n").join(lines[:count])
-        visible.append("\n" * (len(lines) - count))
-        live.update(_build_frame(visible), refresh=True)
-        sleep(0.05)
+    path_visible = cp.show_hide_path(False)
+    for maze in generator.generate_maze_frames():
+        maze_text = _display_maze(generator, maze)
+        live.update(_build_frame(
+            maze_text, generator.algorithm_name), refresh=True)
+        sleep(0.01)
+    cp.show_hide_path(path_visible)
 
     return maze_text
 
 
 def run_app(
-        config: dict[str, Any] = {"width": 9, "height": 9,
+        config: dict[str, Any] = {"width": 13, "height": 13,
                                   "entry": (0, 0), "exit": (0, 2)}) -> None:
     """Run the maze TUI application.
 

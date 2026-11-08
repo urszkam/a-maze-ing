@@ -1,5 +1,7 @@
 from enum import IntEnum
 
+from ..constants import Dir
+
 
 class MenuOption(IntEnum):
     REGENERATE = 1
@@ -9,8 +11,4 @@ class MenuOption(IntEnum):
     EXIT = 5
 
 
-class Dir(IntEnum):
-    N = 1
-    W = 8
-    E = 2
-    S = 4
+__all__ = ["MenuOption", "Dir"]

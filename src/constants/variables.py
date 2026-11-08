@@ -31,30 +31,24 @@ THEME = {
 }
 
 WALL = {
-    # Proste ściany
+    # Walls
     "horizontal": "───",
     "vertical": "│",
 
-    # Narożniki
+    # Corners
     "top_left": "┌",
     "top_right": "┐",
     "bottom_left": "└",
     "bottom_right": "┘",
 
-    # Połączenia trzech ścian
+    # Wall connectors
     "top_join": "┬",
     "bottom_join": "┴",
     "left_join": "├",
     "right_join": "┤",
-
-    # Skrzyżowanie czterech ścian
     "cross": "┼",
 
-    # Zakończenia ścian
-    "end_up": "╵",
-    "end_right": "╶",
-    "end_down": "╷",
-    "end_left": "╴",
+    # Other
     "empty": "   ",
     "logo": "▒▒▒",
     "entry": " ● ",
