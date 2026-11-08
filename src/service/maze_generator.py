@@ -1,13 +1,15 @@
-from __future__ import annotations
+"""Prepare maze grids and apply passages selected by an algorithm."""
 
-from typing import Any
+from __future__ import annotations
 
 import numpy as np
 
-from ..constants import LOGO42
+from src.constants import LOGO42, Dir
+from .algorithms import AlgorithmType, MazeAlgorithm
 
 
 class MazeGenerator:
+    """Manage a singleton maze, its configuration and selected algorithm."""
     _instance: MazeGenerator | None = None
     _initialized: bool = False
 
@@ -39,22 +41,44 @@ class MazeGenerator:
             return
         self._maze = None
         self._config = config
+        self.register_algorithm()
         self._initialized = True
 
     @property
+    def algorithm_name(self) -> str:
+        """Return the selected algorithm name, or an em dash if none is set."""
+        if self._maze_algorithm is None:
+            return "—"
+        return str(self._maze_algorithm.value)
+
+    @property
     def entry(self) -> tuple[int, int]:
-        """TODO Will be removed. """
+        """Return the configured entry coordinates as (row, column)."""
         return self._config["entry"]
 
     @property
     def exit(self) -> tuple[int, int]:
-        """TODO Will be removed. """
+        """Return the configured exit coordinates as (row, column)."""
         return self._config["exit"]
 
     @property
     def maze(self) -> np.ndarray | None:
-        """TODO Will be removed. """
+        """Return the stored maze array, or None before generation."""
         return self._maze
+
+    def register_algorithm(
+            self,
+            algorithm: AlgorithmType = AlgorithmType.KRUSKAL) -> None:
+        """Select the initial algorithm.
+
+        Args:
+            algorithm: Initial choice, used only when no algorithm is selected.
+        """
+        self._maze_algorithm = algorithm
+
+    def next_algorithm(self) -> None:
+        """Select the next available algorithm."""
+        self._maze_algorithm = self._maze_algorithm.get_next()
 
     def _insert_42(self, matrix: np.ndarray) -> None:
         """Place the 42 logo cells in the initial maze as -1.
@@ -83,33 +107,75 @@ class MazeGenerator:
             mid_col - col_offset: mid_col + col_offset + 1
         ] = np.where(logo42 == 1, -1, 15)
 
+    def _get_logo_coords(self, matrix: np.ndarray) -> list[tuple[int, int]]:
+        """Collect coordinates of cells marked as part of the logo.
+
+        Args:
+            matrix: Grid in which logo cells have the value -1.
+
+        Returns:
+            Logo coordinates as (row, column) pairs.
+        """
+        return [tuple(coords) for coords in np.argwhere(matrix == -1)]
+
+    def _open_maze_walls(
+            self,
+            maze: np.ndarray,
+            open_edges: list[tuple[tuple[int, int], tuple[int, int]]]
+            ) -> np.ndarray:
+        """Remove both sides of each passage's shared wall in place.
+
+        Args:
+            maze: Grid of wall bitmasks with the relevant walls still closed.
+            open_edges: Unique adjacent cell pairs ordered toward increasing
+                column or increasing row.
+
+        Returns:
+            The same maze array with passage walls removed.
+        """
+        for neighbor_nodes in open_edges:
+            match (neighbor_nodes):
+                case ((x1, y1), (x2, y2)) if x1 == x2:
+                    maze[x1][y1] -= Dir.E
+                    maze[x2][y2] -= Dir.W
+                case ((x1, y1), (x2, y2)) if y1 == y2:
+                    maze[x1][y1] -= Dir.S
+                    maze[x2][y2] -= Dir.N
+
+        return maze
+
     def generate_maze(self) -> np.ndarray:
         """Generate a maze using an algorithm.
 
         Returns:
             2d maze array with binary walls representation.
         """
-        initial_matrix: np.ndarray = np.full(
+        matrix: np.ndarray = np.full(
             (self._config["height"], self._config["width"]), 15
         )
 
-        self._insert_42(initial_matrix)
+        self._insert_42(matrix)
+        logo_coords: list[tuple[int, int]] = self._get_logo_coords(matrix)
 
-        # TODO generate maze
+        registered_algorithm: MazeAlgorithm = self._maze_algorithm.algorithm
+        open_edges = registered_algorithm.generate_open_edges(
+            matrix.shape, logo_coords)
 
-        self._maze = initial_matrix
+        maze = self._open_maze_walls(matrix, open_edges)
+        self._maze = np.where(matrix == -1, 15, maze)
 
-        return initial_matrix
+        return self._maze
 
     def generate_path(self) -> list[tuple[int, int]]:
-        """Generate maze path from entry to exit.
+        """Return a placeholder path when a maze has been generated.
 
         Returns:
-            Coordinates of every cell in the path.
+            An empty list before generation, otherwise a fixed example path.
+            Actual pathfinding is not implemented yet.
         """
         path: list[tuple[int, int]] = []
 
-        if self._maze is None or self._maze.isEmpty():
+        if self._maze is None:
             return path
 
         # TODO generate path

@@ -6,8 +6,7 @@ from rich.style import Style
 from rich.text import Text
 from rich.theme import Theme
 
-from ..constants import THEME, WALL, COLORS
-from .enums import Dir
+from src.constants import THEME, WALL, COLORS, Dir
 
 
 class ConsolePrinter(Console):
@@ -34,7 +33,6 @@ class ConsolePrinter(Console):
         self._maze_text = Text()
 
         self._initialized = True
-
 
     def error(self, error: str) -> None:
         """Print formatted error message.
@@ -100,7 +98,6 @@ class MazeText(Text):
             String with characters to be preinted as cell elements.
         """
         cell = maze[row][col]
-        cell = 15 if cell == -1 else cell
 
         north = cell & Dir.N
         east = cell & Dir.E
