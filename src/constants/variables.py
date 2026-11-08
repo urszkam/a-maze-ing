@@ -4,8 +4,8 @@ MENU = (
     "2. Show / Hide the shortest path\n"
     "3. Rotate the wall colors\n"
     "4. Rotate the 42 logo colors\n"
-    "6. Change maze generator algorithm (Current algorithm: _)"
-    "5. Exit"
+    "5. Change maze generator algorithm (Current algorithm: {algorithm})\n"
+    "6. Exit"
 )
 
 LOGO42 = [

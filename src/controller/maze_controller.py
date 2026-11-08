@@ -1,3 +1,4 @@
+from enum import IntEnum
 from time import sleep
 from typing import Any
 
@@ -11,10 +12,19 @@ from rich.text import Text
 from ..service import MazeGenerator
 from ..constants import MENU, WALL
 from .console_printer import ConsolePrinter, MazeText
-from .enums import MenuOption, Dir
+from ..constants import Dir
 
 
 cp = ConsolePrinter()
+
+
+class MenuOption(IntEnum):
+    REGENERATE = 1
+    SHOW_HIDE = 2
+    ROTATE_WALL_COLORS = 3
+    ROTATE_42_COLORS = 4
+    CHANGE_ALGORITHM = 5
+    EXIT = 6
 
 
 def _choose_option() -> tuple[MenuOption | None, str]:
@@ -48,15 +58,6 @@ def _display_maze(generator: MazeGenerator) -> MazeText:
     maze: np.ndarray = generator.generate_maze()
     maze_text = MazeText()
 
-    # path for tests:
-    maze[0][0] -= 2
-    maze[0][1] -= 12
-    maze[1][1] -= 2
-    maze[1][2] -= 10
-    maze[1][3] -= 9
-    maze[0][3] -= 12
-    maze[0][2] -= 2
-
     for row_idx, row in enumerate(maze):
         for dir in Dir:
             if dir is Dir.N and row_idx != 0:
@@ -65,7 +66,7 @@ def _display_maze(generator: MazeGenerator) -> MazeText:
                 if dir is Dir.W and col_idx != 0:
                     continue
 
-                is_logo = col_val == -1
+                is_logo = col_val == 15
                 if dir is dir.E:
                     if is_logo:
                         maze_text.append_logo()
@@ -90,17 +91,21 @@ def _display_maze(generator: MazeGenerator) -> MazeText:
     return maze_text
 
 
-def _build_frame(maze_text: Text, error_msg: str = "") -> Group:
+def _build_frame(
+        maze_text: Text,
+        algorithm_name: str,
+        error_msg: str = "") -> Group:
     """Create frame for specific TUI objects.
 
     Args:
         maze_text: Text representation of the maze.
+        algorithm_name: Value of the current maze generation algorithm.
         error_msg: Optional error message caused by option choice.
 
     Returns:
         Group of TUI objects: maze, menu, options prompt, error placeholder.
     """
-    header, menu = MENU.split("\n", 1)
+    header, menu = MENU.format(algorithm=algorithm_name).split("\n", 1)
     option_msg = f"Choose {min(MenuOption).value} - {max(MenuOption).value}: "
 
     return Group(
@@ -128,14 +133,15 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
     for count in range(1, len(lines) + 1):
         visible = Text("\n").join(lines[:count])
         visible.append("\n" * (len(lines) - count))
-        live.update(_build_frame(visible), refresh=True)
+        live.update(_build_frame(
+            visible, generator.algorithm_name), refresh=True)
         sleep(0.05)
 
     return maze_text
 
 
 def run_app(
-        config: dict[str, Any] = {"width": 9, "height": 9,
+        config: dict[str, Any] = {"width": 15, "height": 19,
                                   "entry": (0, 0), "exit": (0, 2)}) -> None:
     """Run the maze TUI application.
 
@@ -155,7 +161,10 @@ def run_app(
         maze_text = _animate_maze(live, generator)
 
         while option != MenuOption.EXIT:
-            live.update(_build_frame(maze_text, error_msg), refresh=True)
+            live.update(
+                _build_frame(maze_text, generator.algorithm_name, error_msg),
+                refresh=True
+            )
 
             option, error_msg = _choose_option()
             match (option):
@@ -163,6 +172,9 @@ def run_app(
                 case MenuOption.ROTATE_42_COLORS: cp.update_42_color()
                 case MenuOption.SHOW_HIDE: cp.show_hide_path()
                 case MenuOption.REGENERATE:
+                    maze_text = _animate_maze(live, generator)
+                case MenuOption.CHANGE_ALGORITHM:
+                    generator.next_algorithm()
                     maze_text = _animate_maze(live, generator)
                 case _: continue
 
