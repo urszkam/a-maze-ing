@@ -60,12 +60,12 @@ class MazeGenerator:
     @property
     def entry(self) -> Node:
         """Return the configured entry coordinates as (row, column)."""
-        return self._config["entry"]
+        return self._config.entry
 
     @property
     def exit(self) -> Node:
         """Return the configured exit coordinates as (row, column)."""
-        return self._config["exit"]
+        return self._config.exit
 
     @property
     def maze(self) -> np.ndarray | None:
@@ -176,7 +176,7 @@ class MazeGenerator:
             Separate maze snapshots, ending with the completed maze.
         """
         matrix: np.ndarray = np.full(
-            (self._config["height"], self._config["width"]), 15
+            (self._config.height, self._config.width), 15
         )
         self._insert_42(matrix)
         self._logo_coords = self._get_logo_coords(matrix)

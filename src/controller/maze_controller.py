@@ -141,8 +141,7 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
 
 
 def run_app(
-        config: dict[str, Any] = {"width": 13, "height": 13,
-                                  "entry": (0, 0), "exit": (0, 2)}) -> None:
+        config: dict[str, Any]) -> None:
     """Run the maze TUI application.
 
     Args:
