@@ -203,4 +203,4 @@ class AlgorithmType(str, Enum):
         return algorithms[new_idx]
 
     KRUSKAL = ("Kruskal's algorithm", KruskalAlgorithm())
-    PLACEHOLDER = ("placeholder", KruskalAlgorithm())
+    PLACEHOLDER = ("Placeholder", KruskalAlgorithm())
