@@ -199,7 +199,7 @@ class Maze:
         Returns:
             Integer bitmask representing the cell's walls.
         """
-        return self._walls[row][col]
+        return int(self._walls[row][col])
 
     @property
     def walls(self) -> np.ndarray:
@@ -397,7 +397,7 @@ class MazeGenerator:
         registered_algorithm: MazeAlgorithm = self._maze_algorithm.algorithm
         open_edges = registered_algorithm.generate_open_edges(
             matrix.shape, self._logo_coords)
-        
+
         matrix[matrix == -1] = 15
         yield matrix.copy()
 

@@ -207,12 +207,18 @@ class MazeText(Text):
 
         prefix = WALL["path"] if bitmask & Dir.W else WALL["empty"]
 
-        if bitmask == Dir.N | Dir.S: mid = WALL["vertical"]
-        elif bitmask == Dir.N | Dir.E: mid = WALL["bottom_left"]
-        elif bitmask == Dir.N | Dir.W: mid = WALL["bottom_right"]
-        elif bitmask == Dir.S | Dir.E: mid = WALL["top_left"]
-        elif bitmask == Dir.S | Dir.W: mid = WALL["top_right"]
-        else: mid = WALL["path"]
+        if bitmask == Dir.N | Dir.S:
+            mid = WALL["vertical"]
+        elif bitmask == Dir.N | Dir.E:
+            mid = WALL["bottom_left"]
+        elif bitmask == Dir.N | Dir.W:
+            mid = WALL["bottom_right"]
+        elif bitmask == Dir.S | Dir.E:
+            mid = WALL["top_left"]
+        elif bitmask == Dir.S | Dir.W:
+            mid = WALL["top_right"]
+        else:
+            mid = WALL["path"]
 
         sufix = WALL["path"] if bitmask & Dir.E else WALL["empty"]
 

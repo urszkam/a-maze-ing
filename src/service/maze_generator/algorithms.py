@@ -4,7 +4,6 @@ import random
 from abc import ABC, abstractmethod
 from collections import Counter
 from enum import Enum
-from functools import reduce
 from typing import TypeAlias
 
 import numpy as np
@@ -47,16 +46,19 @@ class MazeAlgorithm(ABC):
         nodes_from_open_edges: tuple[Node, ...] = sum(
             open_edges, ())
         nodes_counter = Counter(nodes_from_open_edges)
-        dead_ends: list[Node] = [node for node in nodes_counter
-                     if nodes_counter[node] == 1]
+        dead_ends: list[Node] = [
+            node for node in nodes_counter if nodes_counter[node] == 1
+        ]
 
         for dead_end in dead_ends:
             if nodes_counter[dead_end] > 1:
                 continue
 
             row, col = dead_end
-            neighbors: list[Node] = [(row + 1, col), (row - 1, col),
-                         (row, col + 1), (row, col - 1)]
+            neighbors: list[Node] = [
+                (row + 1, col), (row - 1, col),
+                (row, col + 1), (row, col - 1),
+            ]
             neighbors_counter: dict[Node, int] = {
                 node: nodes_counter[node]
                 for node in neighbors
@@ -67,10 +69,14 @@ class MazeAlgorithm(ABC):
             if not neighbors_counter:
                 continue
 
-            node_to_pass: Node = min(neighbors_counter, key=neighbors_counter.__getitem__)
+            node_to_pass: Node = min(
+                neighbors_counter, key=neighbors_counter.__getitem__
+            )
             nodes_counter[node_to_pass] += 1
             nodes_counter[dead_end] += 1
-            new_open_edge: Edge = (min(node_to_pass, dead_end), max(node_to_pass, dead_end))
+            new_open_edge: Edge = (
+                min(node_to_pass, dead_end), max(node_to_pass, dead_end)
+            )
             open_edges.append(new_open_edge)
 
 

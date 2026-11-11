@@ -44,7 +44,8 @@ def _choose_option() -> tuple[MenuOption | None, str]:
     return None, f"Value outside the requested range: {option_num}"
 
 
-def _append_wall_or_path( maze_text: MazeText, dir: Dir,
+def _append_wall_or_path(
+        maze_text: MazeText, dir: Dir,
         wall_text: str, path_mask: int | None) -> None:
     """Append a wall segment, replacing it with a path where applicable."""
     if path_mask is None or not path_mask & dir:
@@ -62,7 +63,8 @@ def _append_wall_or_path( maze_text: MazeText, dir: Dir,
             maze_text.append_wall(wall_text)
 
 
-def _append_middle_path(maze_text: MazeText, path_mask: int, is_entry: bool,
+def _append_middle_path(
+        maze_text: MazeText, path_mask: int, is_entry: bool,
         is_exit: bool) -> None:
     """Append the horizontal representation of a path cell."""
     prefix, mid, sufix = MazeText.get_path_text(path_mask)

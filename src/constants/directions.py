@@ -6,4 +6,3 @@ class Dir(IntEnum):
     W = 8
     E = 2
     S = 4
-
