@@ -1,7 +1,7 @@
 [project]
 name = "a-maze-ing"
 version = "0.1.0"
-description = "Add your description here"
+description = ""
 readme = "README.md"
 authors = [
     { name = "Ula Kaminska", email = "urkamins@student.42warsaw.pl" },

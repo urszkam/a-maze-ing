@@ -7,10 +7,10 @@ from rich.console import Group
 from rich.live import Live
 from rich.text import Text
 
-from ..service import Maze, MazeGenerator
-from ..constants import MENU, WALL, WIDTH
+from ..model import Maze
+from ..service import MazeGenerator, MazeConfig
+from ..constants import MENU, WALL, WIDTH, Dir
 from .console_printer import ConsolePrinter, MazeText
-from ..constants import Dir
 
 
 cp = ConsolePrinter()
@@ -121,7 +121,6 @@ def _display_maze(maze: Maze) -> MazeText:
                 )
 
                 if is_logo and dir is Dir.S:
-                    # Safely append 42 logo styling across the southern boundary block
                     maze_text.append_wall_logo(wall_text)
                 else:
                     _append_wall_or_path(
@@ -132,6 +131,7 @@ def _display_maze(maze: Maze) -> MazeText:
                 maze_text.append_nl()
 
     return maze_text
+
 
 def _build_frame(
         maze_text: Text,
@@ -182,7 +182,7 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
 
 
 def run_app(
-        config: dict[str, Any]) -> None:
+        config: MazeConfig) -> None:
     """Run the maze TUI application.
 
     Args:

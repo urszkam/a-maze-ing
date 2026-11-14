@@ -190,7 +190,7 @@ class PrimAlgorithm(MazeAlgorithm):
         logo_coords: list[Node],
         is_perfect: bool = True
     ) -> list[Edge]:
-        """Build a maze using randomized Prim's algorithm, excluding logo cells.
+        """Build a maze using randomized Prim's algorithm excluding logo cells.
 
         Args:
             shape: Matrix dimensions (rows, cols).
@@ -214,7 +214,7 @@ class PrimAlgorithm(MazeAlgorithm):
         visited: set[Node] = {start_node}
         open_edges: list[Edge] = []
 
-        # Track active frontier walls/edges connecting visited to unvisited nodes
+        # Track active frontier walls/edges connecting visited/unvisited nodes
         frontier: dict[Edge, Node] = {}
 
         def add_frontier_neighbors(node: Node) -> None:
