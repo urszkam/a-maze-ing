@@ -155,9 +155,9 @@ which removes dead ends after the maze has been generated.
 <table>
   <tr>
     <td align="center">
-      <strong>Placeholder for algorithm visualization</strong><br><br>
-      <img src="https://placeholder" alt="placeholder"><br>
-      Source: <a href="placeholder">Wikipedia</a>
+      <strong>Prim Algorithm Visualization</strong><br><br>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/9/9b/PrimAlgDemo.gif?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=original" alt="Prim algorithm animation"><br>
+      Source: <a href="https://en.wikipedia.org/wiki/File:PrimAlgDemo.gif">Wikipedia</a>
     </td>
   </tr>
 </table>
