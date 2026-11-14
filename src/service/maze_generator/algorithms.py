@@ -86,7 +86,7 @@ class KruskalAlgorithm(MazeAlgorithm):
         self,
         shape: tuple[int, int],
         logo_coords: list[Node],
-        is_perfect: bool = False
+        is_perfect: bool = True
     ) -> list[Edge]:
         """Build a spanning forest of the grid, excluding logo cells.
 
@@ -108,10 +108,10 @@ class KruskalAlgorithm(MazeAlgorithm):
             coords: coords for coords in nodes}
 
         edges: list[Edge] = []
-        for x, y in nodes:
-            for neighbor in ((x + 1, y), (x, y + 1)):
+        for row, col in nodes:
+            for neighbor in ((row + 1, col), (row, col + 1)):
                 if neighbor in nodes_map:
-                    edges.append(((x, y), neighbor))
+                    edges.append(((row, col), neighbor))
 
         random.shuffle(edges)
 
@@ -181,6 +181,68 @@ class KruskalAlgorithm(MazeAlgorithm):
         return self._find(node1, nodes_map) != self._find(node2, nodes_map)
 
 
+class PrimAlgorithm(MazeAlgorithm):
+    """Select maze passages using randomized Prim's algorithm."""
+
+    def generate_open_edges(
+        self,
+        shape: tuple[int, int],
+        logo_coords: list[Node],
+        is_perfect: bool = True
+    ) -> list[Edge]:
+        """Build a maze using randomized Prim's algorithm, excluding logo cells.
+
+        Args:
+            shape: Matrix dimensions (rows, cols).
+            logo_coords: Blocked cells as (row, column) pairs.
+            is_perfect: Whether to require a perfect maze.
+
+        Returns:
+            Selected passages connecting the cells.
+        """
+        rows, cols = shape
+
+        all_nodes = {
+            (r, c) for r in range(rows) for c in range(cols)
+            if (r, c) not in logo_coords
+        }
+        if not all_nodes:
+            return []
+
+        # Start with an arbitrary node
+        start_node = next(iter(all_nodes))
+        visited: set[Node] = {start_node}
+        open_edges: list[Edge] = []
+
+        # Track active frontier walls/edges connecting visited to unvisited nodes
+        frontier: dict[Edge, Node] = {}
+
+        def add_frontier_neighbors(node: Node) -> None:
+            r, c = node
+            for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                neighbor = (r + dr, c + dc)
+                if neighbor in all_nodes and neighbor not in visited:
+                    edge = (min(node, neighbor), max(node, neighbor))
+                    frontier[edge] = neighbor
+
+        add_frontier_neighbors(start_node)
+
+        while frontier:
+            # Pick a random edge from the frontier
+            edge = random.choice(list(frontier.keys()))
+            neighbor = frontier.pop(edge)
+
+            if neighbor not in visited:
+                visited.add(neighbor)
+                open_edges.append(edge)
+                add_frontier_neighbors(neighbor)
+
+        if not is_perfect:
+            self._remove_dead_ends(open_edges)
+
+        return open_edges
+
+
 class AlgorithmType(str, Enum):
     """Associate display names with shared algorithm instances."""
     algorithm: MazeAlgorithm
@@ -209,4 +271,4 @@ class AlgorithmType(str, Enum):
         return algorithms[new_idx]
 
     KRUSKAL = ("Kruskal's algorithm", KruskalAlgorithm())
-    PLACEHOLDER = ("Placeholder", KruskalAlgorithm())
+    PRIM = ("Prim's algorithm", PrimAlgorithm())

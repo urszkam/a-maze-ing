@@ -1,6 +1,6 @@
 SCRIPT	= a_maze_ing.py
 CONFIG	= config.txt
-UV		= uv run
+UV	= uv run
 
 install:
 	pip install uv

@@ -7,7 +7,8 @@ from typing import Iterator, TypeAlias
 
 from src.constants import LOGO42, Dir
 from .algorithms import AlgorithmType, MazeAlgorithm
-
+from src.service.parse_config import MazeConfig
+from .maze_solver import MazeSolver
 
 Node: TypeAlias = tuple[int, int]
 Edge: TypeAlias = tuple[Node, Node]
@@ -162,12 +163,12 @@ class Maze:
             if cell is None:
                 continue
 
-            x, y = cell
-            if x > row:
+            cell_row, cell_col = cell
+            if cell_row > row:
                 direction = Dir.S
-            elif x < row:
+            elif cell_row < row:
                 direction = Dir.N
-            elif y > col:
+            elif cell_col > col:
                 direction = Dir.E
             else:
                 direction = Dir.W
@@ -185,8 +186,8 @@ class Maze:
 
         return [
             bitmask
-            for x, y in self._path
-            if (bitmask := self.get_path_cell_bitmask(x, y)) is not None
+            for row, col in self._path
+            if (bitmask := self.get_path_cell_bitmask(row, col)) is not None
         ]
 
     def get_wall(self, row: int, col: int) -> int:
@@ -212,13 +213,11 @@ class MazeGenerator:
     _instance: MazeGenerator | None = None
     _initialized: bool = False
 
-    def __new__(
-            cls, config: dict[str, tuple[int, int] | bool | str]
-            ) -> MazeGenerator:
+    def __new__(cls, config: MazeConfig) -> MazeGenerator:
         """Create singleton maze generator instance.
 
         Args:
-            config: Maze settings passed to the initializer.
+            config: Maze settings class passed to the initializer.
 
         Returns:
             The existing or newly created instance.
@@ -228,8 +227,7 @@ class MazeGenerator:
 
         return cls._instance
 
-    def __init__(
-            self, config: dict[str, tuple[int, int] | bool | str]) -> None:
+    def __init__(self, config: MazeConfig) -> None:
         """Initialize the maze generator instance.
 
         Args:
@@ -238,7 +236,9 @@ class MazeGenerator:
         """
         if self._initialized:
             return
+
         self._maze: Maze | None = None
+        self._solver = MazeSolver()
         self._logo_coords: list[Node] = []
         self._config = config
         self.register_algorithm()
@@ -255,12 +255,16 @@ class MazeGenerator:
     @property
     def entry(self) -> Node:
         """Return the configured entry coordinates as (row, column)."""
-        return self._config["entry"]
+        col, row = self._config.entry
+
+        return (row, col)
 
     @property
     def exit(self) -> Node:
         """Return the configured exit coordinates as (row, column)."""
-        return self._config["exit"]
+        col, row = self._config.exit
+
+        return (row, col)
 
     @property
     def maze(self) -> Maze | None:
@@ -293,14 +297,14 @@ class MazeGenerator:
             matrix: initial 2d array filled with number 15.
 
         Raises:
-            Exception: When config area is not enough for logo and proper maze.
+            RuntimeError: When config area is not enough for logo and proper maze.
         """
         logo42 = np.array(LOGO42)
         logo_rows, logo_cols = logo42.shape
         matrix_rows, matrix_cols = matrix.shape
 
         if logo_rows + 1 >= matrix_rows or logo_cols + 1 >= matrix_cols:
-            raise Exception("Insufficient area for maze generation.")
+            raise RuntimeError("Insufficient area for maze generation.")
 
         mid_row: int = matrix_rows // 2
         mid_col: int = matrix_cols // 2
@@ -341,12 +345,12 @@ class MazeGenerator:
         """
         for neighbor_nodes in open_edges:
             match (neighbor_nodes):
-                case ((x1, y1), (x2, y2)) if x1 == x2:
-                    maze[x1][y1] &= ~Dir.E
-                    maze[x2][y2] &= ~Dir.W
-                case ((x1, y1), (x2, y2)) if y1 == y2:
-                    maze[x1][y1] &= ~Dir.S
-                    maze[x2][y2] &= ~Dir.N
+                case ((row1, col1), (row2, col2)) if row1 == row2:
+                    maze[row1][col1] &= ~Dir.E
+                    maze[row2][col2] &= ~Dir.W
+                case ((row1, col1), (row2, col2)) if col1 == col2:
+                    maze[row1][col1] &= ~Dir.S
+                    maze[row2][col2] &= ~Dir.N
 
         return maze
 
@@ -375,7 +379,7 @@ class MazeGenerator:
         Returns:
             Maze instance storing the completed maze.
         """
-        path: list[Node] = self.generate_path()
+        path: list[Node] = self.generate_path(maze)
         self._maze = Maze(maze, self._logo_coords, path,
                           self.entry, self.exit)
 
@@ -388,7 +392,7 @@ class MazeGenerator:
             Separate maze snapshots, ending with the completed maze.
         """
         matrix: np.ndarray = np.full(
-            (self._config["height"], self._config["width"]), 15
+            (self._config.height, self._config.width), 15
         )
         self._insert_42(matrix)
         if not self._logo_coords:
@@ -396,7 +400,9 @@ class MazeGenerator:
 
         registered_algorithm: MazeAlgorithm = self._maze_algorithm.algorithm
         open_edges = registered_algorithm.generate_open_edges(
-            matrix.shape, self._logo_coords)
+            shape=matrix.shape,
+            logo_coords=self._logo_coords,
+            is_perfect=self._config.perfect)
 
         matrix[matrix == -1] = 15
         yield matrix.copy()
@@ -412,14 +418,12 @@ class MazeGenerator:
 
             yield matrix.copy()
 
-    def generate_path(self) -> list[Node]:
+    def generate_path(self, walls: np.ndarray) -> list[Node]:
         """ Generates the shortest path from entry to exit.
 
         Returns:
             List of path coordinates
         """
-        # TODO generate path
-
-        placeholder = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (0, 3), (0, 2)]
-
-        return placeholder
+        return self._solver.find_shortest_path(
+            walls, self.entry, self.exit
+        )

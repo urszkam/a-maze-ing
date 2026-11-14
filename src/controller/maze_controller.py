@@ -119,7 +119,9 @@ def _display_maze(maze: Maze) -> MazeText:
                 wall_text = MazeText.get_wall_text(
                     dir=dir, row=row_idx, col=col_idx, maze=maze.walls
                 )
+
                 if is_logo and dir is Dir.S:
+                    # Safely append 42 logo styling across the southern boundary block
                     maze_text.append_wall_logo(wall_text)
                 else:
                     _append_wall_or_path(
@@ -130,7 +132,6 @@ def _display_maze(maze: Maze) -> MazeText:
                 maze_text.append_nl()
 
     return maze_text
-
 
 def _build_frame(
         maze_text: Text,
@@ -181,8 +182,7 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
 
 
 def run_app(
-        config: dict[str, Any] = {"width": 13, "height": 13,
-                                  "entry": (0, 0), "exit": (0, 2)}) -> None:
+        config: dict[str, Any]) -> None:
     """Run the maze TUI application.
 
     Args:
