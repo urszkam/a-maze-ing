@@ -53,7 +53,7 @@ WALL = {
     "empty": "   ",
     "logo": "▒▒▒",
     "entry": " ● ",
-    "path": "."
+    "path": " . "
 }
 
 COLORS = [
