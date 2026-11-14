@@ -9,34 +9,28 @@ Node: TypeAlias = tuple[int, int]
 class MazeSolver:
     """Finds the shortest path through the generated maze using Breadth-First Search (BFS)."""
 
-    def __init__(self, maze: np.ndarray, entry: Node, exit: Node) -> None:
-        self.maze = maze
-        self.entry = entry
-        self.exit = exit
-
-    def find_shortest_path(self) -> list[Node]:
+    def find_shortest_path(
+        self, maze: np.ndarray, entry: Node, exit: Node
+    ) -> list[Node]:
         """Compute the shortest path from entry to exit considering wall bitmasks.
 
         Returns:
             A list of coordinate nodes representing the path, or empty list if unreachable.
         """
-        if self.maze is None:
-            return []
-
-        rows, cols = self.maze.shape
-        queue: deque[Node] = deque([self.entry])
-        visited: set[Node] = {self.entry}
-        parent_map: dict[Node, Node] = {self.entry: self.entry}
+        rows, cols = maze.shape
+        queue: deque[Node] = deque([entry])
+        visited: set[Node] = {entry}
+        parent_map: dict[Node, Node] = {entry: entry}
 
         found = False
         while queue:
             current = queue.popleft()
-            if current == self.exit:
+            if current == exit:
                 found = True
                 break
 
             r, c = current
-            cell_walls = self.maze[r][c]
+            cell_walls = maze[r][c]
 
             # Check neighbors based on open walls (inverted bitmasks)
             # North
@@ -73,11 +67,11 @@ class MazeSolver:
 
         # Reconstruct path from exit to entry
         path: list[Node] = []
-        curr = self.exit
-        while curr != self.entry:
+        curr = exit
+        while curr != entry:
             path.append(curr)
             curr = parent_map[curr]
-        #path.append(self.entry)
+        path.append(entry)
         path.reverse()
 
         return path

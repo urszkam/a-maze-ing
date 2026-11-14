@@ -1,3 +1,5 @@
+WIDTH = 3
+
 MENU = (
     "=== A-MAZE-ING ===\n"
     "1. Re-generate a new maze\n"
@@ -23,8 +25,8 @@ THEME = {
     "maze.end": "bold red",
     "maze.path": "bold #ffff00",
     "maze.42": "bold bright_blue",
-    "maze.entry": "bright_green",
-    "maze.exit": "bright_red",
+    "maze.entry": "bold bright_green",
+    "maze.exit": "bold bright_red",
     "txt.error": "red",
     "txt.header": "bold blue",
     "txt.menu": "white",
@@ -33,27 +35,27 @@ THEME = {
 
 WALL = {
     # Walls
-    "horizontal": "───",
-    "vertical": "│",
+    "horizontal": "━━━",
+    "vertical": "┃",
 
     # Corners
-    "top_left": "┌",
-    "top_right": "┐",
-    "bottom_left": "└",
-    "bottom_right": "┘",
+    "top_left": "┏",
+    "top_right": "┓",
+    "bottom_left": "┗",
+    "bottom_right": "┛",
 
     # Wall connectors
-    "top_join": "┬",
-    "bottom_join": "┴",
-    "left_join": "├",
-    "right_join": "┤",
-    "cross": "┼",
+    "top_join": "┳",
+    "bottom_join": "┻",
+    "left_join": "┣",
+    "right_join": "┫",
+    "cross": "╋",
 
     # Other
-    "empty": "   ",
+    "empty": " ",
     "logo": "▒▒▒",
-    "entry": " ● ",
-    "path": " . "
+    "entry": "●",
+    "path": "━"
 }
 
 COLORS = [

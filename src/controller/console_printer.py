@@ -86,6 +86,59 @@ class ConsolePrinter(Console):
 
 class MazeText(Text):
     @staticmethod
+    def _get_bottom_wall(
+            west: bool,
+            south: bool,
+            prev_south: int,
+            bottom_west: int,
+            is_last_row: bool,
+            is_last_col: bool,
+            ) -> str:
+        """Generate the bottom wall segment of a cell."""
+        prefix = " "
+
+        if west:
+            if south:
+                if not prev_south and not bottom_west:
+                    prefix = WALL["bottom_left"]
+                elif not prev_south and bottom_west:
+                    prefix = WALL["left_join"]
+                elif prev_south and bottom_west:
+                    prefix = WALL["cross"]
+                elif prev_south and not bottom_west:
+                    prefix = WALL["bottom_join"]
+            else:
+                if not prev_south and bottom_west:
+                    prefix = WALL["vertical"]
+                elif prev_south and not bottom_west:
+                    prefix = WALL["bottom_right"]
+                elif prev_south and bottom_west:
+                    prefix = WALL["right_join"]
+        else:
+            if south:
+                if prev_south and not bottom_west:
+                    prefix = WALL["horizontal"][0]
+                if prev_south and bottom_west:
+                    prefix = WALL["top_join"]
+                if not prev_south and bottom_west:
+                    prefix = WALL["top_left"]
+            else:
+                if prev_south and bottom_west:
+                    prefix = WALL["top_right"]
+
+        sufix = ""
+        if is_last_row and is_last_col:
+            sufix = WALL["bottom_right"]
+        elif is_last_col and south:
+            sufix = WALL["right_join"]
+        elif is_last_col:
+            sufix = WALL["vertical"]
+
+        if south:
+            return prefix + WALL["horizontal"] + sufix
+        return prefix + "   " + sufix
+
+    @staticmethod
     def get_wall_text(dir: Dir, row: int, col: int, maze: np.ndarray) -> str:
         """Generates maze elements for a single cell level.
 
@@ -114,7 +167,6 @@ class MazeText(Text):
         prev_south = prev & Dir.S
         bottom_west = bottom & Dir.W
 
-        # TODO divide this spaghetti into helper functions
         prefix = " "
         sufix = ""
         if dir is Dir.N:
@@ -127,42 +179,14 @@ class MazeText(Text):
             if is_last_col:
                 sufix = WALL["top_right"]
         elif dir is Dir.S:
-            if west:
-                if south:
-                    if not prev_south and not bottom_west:
-                        prefix = WALL["bottom_left"]
-                    elif not prev_south and bottom_west:
-                        prefix = WALL["left_join"]
-                    elif prev_south and bottom_west:
-                        prefix = WALL["cross"]
-                    elif prev_south and not bottom_west:
-                        prefix = WALL["bottom_join"]
-                else:
-                    if not prev_south and bottom_west:
-                        prefix = WALL["vertical"]
-                    elif prev_south and not bottom_west:
-                        prefix = WALL["bottom_right"]
-                    elif prev_south and bottom_west:
-                        prefix = WALL["right_join"]
-            else:
-                if south:
-                    if prev_south and not bottom_west:
-                        prefix = WALL["horizontal"][0]
-                    if prev_south and bottom_west:
-                        prefix = WALL["top_join"]
-                    if not prev_south and bottom_west:
-                        prefix = WALL["top_left"]
-
-                else:
-                    if prev_south and bottom_west:
-                        prefix = WALL["top_right"]
-
-            if is_last_row and is_last_col:
-                sufix = WALL["bottom_right"]
-            elif is_last_col and south:
-                sufix = WALL["right_join"]
-            elif is_last_col:
-                sufix = WALL["vertical"]
+            return MazeText._get_bottom_wall(
+                bool(west),
+                bool(south),
+                prev_south,
+                bottom_west,
+                is_last_row,
+                is_last_col,
+            )
 
         match (dir):
             case Dir.W:
@@ -174,11 +198,31 @@ class MazeText(Text):
                     return WALL["vertical"]
                 return " "
             case Dir.N if north: return prefix + WALL["horizontal"] + sufix
-            case Dir.S:
-                if south:
-                    return prefix + WALL["horizontal"] + sufix
-                return prefix + "   " + sufix
             case _: return ""
+
+    @staticmethod
+    def get_path_text(bitmask: int | None) -> tuple[str, str, str]:
+        if bitmask is None:
+            return WALL["empty"], WALL["empty"], WALL["empty"]
+
+        prefix = WALL["path"] if bitmask & Dir.W else WALL["empty"]
+
+        if bitmask == Dir.N | Dir.S:
+            mid = WALL["vertical"]
+        elif bitmask == Dir.N | Dir.E:
+            mid = WALL["bottom_left"]
+        elif bitmask == Dir.N | Dir.W:
+            mid = WALL["bottom_right"]
+        elif bitmask == Dir.S | Dir.E:
+            mid = WALL["top_left"]
+        elif bitmask == Dir.S | Dir.W:
+            mid = WALL["top_right"]
+        else:
+            mid = WALL["path"]
+
+        sufix = WALL["path"] if bitmask & Dir.E else WALL["empty"]
+
+        return prefix, mid, sufix
 
     def append_wall(self, chars: str) -> None:
         """Add maze wall characters to be printed.
@@ -204,9 +248,9 @@ class MazeText(Text):
         """Add 42 logo characters to be printed. """
         self.append(WALL["logo"], style="maze.42")
 
-    def append_path(self) -> None:
+    def append_path(self, char: str) -> None:
         """Add maze path characters to be printed. """
-        self.append(WALL["path"], style="maze.path")
+        self.append(char, style="maze.path")
 
     def append_entry(self) -> None:
         """Add entry character to be printed. """
@@ -215,6 +259,10 @@ class MazeText(Text):
     def append_exit(self) -> None:
         """Add exit character to be printed. """
         self.append(WALL["entry"], style="maze.exit")
+
+    def append_empty(self, width: int = 1) -> None:
+        """Add exit character to be printed. """
+        self.append(WALL["empty"] * width, style="maze.exit")
 
     def append_nl(self) -> None:
         """Add new line character. """

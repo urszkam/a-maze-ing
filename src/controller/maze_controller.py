@@ -2,15 +2,13 @@ from enum import IntEnum
 from time import sleep
 from typing import Any
 
-import numpy as np
-
 from readchar import readkey
 from rich.console import Group
 from rich.live import Live
 from rich.text import Text
 
-from ..service import MazeGenerator
-from ..constants import MENU, WALL
+from ..service import Maze, MazeGenerator
+from ..constants import MENU, WALL, WIDTH
 from .console_printer import ConsolePrinter, MazeText
 from ..constants import Dir
 
@@ -46,57 +44,89 @@ def _choose_option() -> tuple[MenuOption | None, str]:
     return None, f"Value outside the requested range: {option_num}"
 
 
-def _display_maze(
-        generator: MazeGenerator, maze: np.ndarray) -> MazeText:
+def _append_wall_or_path(
+        maze_text: MazeText, dir: Dir,
+        wall_text: str, path_mask: int | None) -> None:
+    """Append a wall segment, replacing it with a path where applicable."""
+    if path_mask is None or not path_mask & dir:
+        maze_text.append_wall(wall_text)
+        return
+
+    match dir:
+        case Dir.S:
+            maze_text.append_wall(wall_text[:2])
+            maze_text.append_path(WALL["vertical"])
+            maze_text.append_wall(wall_text[3:])
+        case Dir.E:
+            maze_text.append_path(WALL["horizontal"][0])
+        case _:
+            maze_text.append_wall(wall_text)
+
+
+def _append_middle_path(
+        maze_text: MazeText, path_mask: int, is_entry: bool,
+        is_exit: bool) -> None:
+    """Append the horizontal representation of a path cell."""
+    prefix, mid, sufix = MazeText.get_path_text(path_mask)
+    maze_text.append_path(prefix)
+
+    if is_entry:
+        maze_text.append_entry()
+    elif is_exit:
+        maze_text.append_exit()
+    else:
+        maze_text.append_path(mid)
+
+    maze_text.append_path(sufix)
+
+
+def _display_maze(maze: Maze) -> MazeText:
     """Render a maze snapshot for terminal display.
 
     Args:
-        generator: Object responsible for maze generation.
-        maze: Grid snapshot to render.
+        maze: Maze instance to render.
 
     Returns:
         Text representation of the generated maze.
     """
-    logo_coords = set(generator.logo_coords)
-    path_coords = set(generator.generate_path())
     maze_text = MazeText()
 
-    for row_idx, row in enumerate(maze):
+    for row_idx, row in enumerate(maze.walls):
         for dir in Dir:
             if dir is Dir.N and row_idx != 0:
                 continue
+
             for col_idx in range(len(row)):
                 if dir is Dir.W and col_idx != 0:
                     continue
 
-                is_logo = (row_idx, col_idx) in logo_coords
-                is_path = (row_idx, col_idx) in path_coords
-                is_entry = (row_idx, col_idx) == generator.entry
-                is_exit = (row_idx, col_idx) == generator.exit
+                is_logo = maze.is_logo(row_idx, col_idx)
+                is_entry = maze.is_entry(row_idx, col_idx)
+                is_exit = maze.is_exit(row_idx, col_idx)
+                path_mask = maze.get_path_cell_bitmask(row_idx, col_idx)
 
-                # Handle East direction cell interiors (content inside the cell box)
+                # middle part of the cell
                 if dir is Dir.E:
                     if is_logo:
                         maze_text.append_logo()
-                    elif is_entry:
-                        maze_text.append_entry()
-                    elif is_exit:
-                        maze_text.append_exit()
-                    elif is_path:
-                        maze_text.append_path()
+                    elif not path_mask:
+                        maze_text.append_empty(WIDTH)
                     else:
-                        maze_text.append_wall(WALL["empty"])
-
-                # Handle wall borders (N, S, W, E boundaries)
+                        _append_middle_path(
+                            maze_text, path_mask, is_entry, is_exit
+                        )
+                # append border part of the cell
                 wall_text = MazeText.get_wall_text(
-                    dir=dir, row=row_idx, col=col_idx, maze=maze
+                    dir=dir, row=row_idx, col=col_idx, maze=maze.walls
                 )
-                
+
                 if is_logo and dir is Dir.S:
                     # Safely append 42 logo styling across the southern boundary block
                     maze_text.append_wall_logo(wall_text)
                 else:
-                    maze_text.append_wall(wall_text)
+                    _append_wall_or_path(
+                        maze_text, dir, wall_text, path_mask
+                    )
 
             if dir is not Dir.W:
                 maze_text.append_nl()
@@ -140,8 +170,9 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
         Text representation of maze.
     """
     path_visible: bool = cp.show_hide_path(False)
-    for maze in generator.generate_maze_frames():
-        maze_text = _display_maze(generator, maze)
+    for frame in generator.generate_maze_frames():
+        maze = generator.store_maze(frame)
+        maze_text = _display_maze(maze)
         live.update(_build_frame(
             maze_text, generator.algorithm_name), refresh=True)
         sleep(0.01)

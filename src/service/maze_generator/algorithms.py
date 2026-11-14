@@ -4,7 +4,6 @@ import random
 from abc import ABC, abstractmethod
 from collections import Counter
 from enum import Enum
-from functools import reduce
 from typing import TypeAlias
 
 import numpy as np
@@ -47,16 +46,19 @@ class MazeAlgorithm(ABC):
         nodes_from_open_edges: tuple[Node, ...] = sum(
             open_edges, ())
         nodes_counter = Counter(nodes_from_open_edges)
-        dead_ends: list[Node] = [node for node in nodes_counter
-                     if nodes_counter[node] == 1]
+        dead_ends: list[Node] = [
+            node for node in nodes_counter if nodes_counter[node] == 1
+        ]
 
         for dead_end in dead_ends:
             if nodes_counter[dead_end] > 1:
                 continue
 
             row, col = dead_end
-            neighbors: list[Node] = [(row + 1, col), (row - 1, col),
-                         (row, col + 1), (row, col - 1)]
+            neighbors: list[Node] = [
+                (row + 1, col), (row - 1, col),
+                (row, col + 1), (row, col - 1),
+            ]
             neighbors_counter: dict[Node, int] = {
                 node: nodes_counter[node]
                 for node in neighbors
@@ -67,10 +69,14 @@ class MazeAlgorithm(ABC):
             if not neighbors_counter:
                 continue
 
-            node_to_pass: Node = min(neighbors_counter, key=neighbors_counter.__getitem__)
+            node_to_pass: Node = min(
+                neighbors_counter, key=neighbors_counter.__getitem__
+            )
             nodes_counter[node_to_pass] += 1
             nodes_counter[dead_end] += 1
-            new_open_edge: Edge = (min(node_to_pass, dead_end), max(node_to_pass, dead_end))
+            new_open_edge: Edge = (
+                min(node_to_pass, dead_end), max(node_to_pass, dead_end)
+            )
             open_edges.append(new_open_edge)
 
 
@@ -80,7 +86,7 @@ class KruskalAlgorithm(MazeAlgorithm):
         self,
         shape: tuple[int, int],
         logo_coords: list[Node],
-        is_perfect: bool = False
+        is_perfect: bool = True
     ) -> list[Edge]:
         """Build a spanning forest of the grid, excluding logo cells.
 
@@ -102,10 +108,10 @@ class KruskalAlgorithm(MazeAlgorithm):
             coords: coords for coords in nodes}
 
         edges: list[Edge] = []
-        for x, y in nodes:
-            for neighbor in ((x + 1, y), (x, y + 1)):
+        for row, col in nodes:
+            for neighbor in ((row + 1, col), (row, col + 1)):
                 if neighbor in nodes_map:
-                    edges.append(((x, y), neighbor))
+                    edges.append(((row, col), neighbor))
 
         random.shuffle(edges)
 
@@ -177,7 +183,7 @@ class KruskalAlgorithm(MazeAlgorithm):
 
 class PrimAlgorithm(MazeAlgorithm):
     """Select maze passages using randomized Prim's algorithm."""
-    
+
     def generate_open_edges(
         self,
         shape: tuple[int, int],
@@ -195,7 +201,7 @@ class PrimAlgorithm(MazeAlgorithm):
             Selected passages connecting the cells.
         """
         rows, cols = shape
-        
+
         all_nodes = {
             (r, c) for r in range(rows) for c in range(cols)
             if (r, c) not in logo_coords
@@ -207,7 +213,7 @@ class PrimAlgorithm(MazeAlgorithm):
         start_node = next(iter(all_nodes))
         visited: set[Node] = {start_node}
         open_edges: list[Edge] = []
-        
+
         # Track active frontier walls/edges connecting visited to unvisited nodes
         frontier: dict[Edge, Node] = {}
 

@@ -1,5 +1,5 @@
 from src.controller import run_app
-from src.parse_config import MazeConfig
+from src.service.parse_config import MazeConfig
 import argparse
 from pydantic import ValidationError
 
@@ -24,7 +24,7 @@ def main() -> None:
             field = f"{e['loc'][0]}: " if e['loc'] else ""
             print(f"  - {field}{e['msg']}")
         raise SystemExit(1)
-    
+
 
 if __name__ == "__main__":
     main()
