@@ -84,8 +84,9 @@ Install the uv project manager and the project dependencies:
 make install
 ```
 
-This command installs *uv* and runs *uv sync*. This command creates
-the virtual environment and installs all dependencies from *pyproject.toml* into it.
+This command installs the *uv* version pinned in *requirements.txt* and runs
+*uv sync --locked*. It creates the virtual environment and installs dependencies
+from *uv.lock*, checking that it is consistent with *pyproject.toml*.
 
 The application can then be started with:
 

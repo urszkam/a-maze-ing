@@ -1,16 +1,16 @@
 SCRIPT	= a_maze_ing.py
 CONFIG	= config.txt
-UV	= uv run
+UV		= uv run
 
 install:
-	pip install uv
-	uv sync
+	pip install -r requirements.txt
+	uv sync --locked
 run:
 	${UV} python3 ${SCRIPT} ${CONFIG}
 debug:
 	${UV} python3 -m pdb ${SCRIPT} ${CONFIG}
 test:
-
+	${UV} python3 -m pytest -v ./tests
 clean:
 	find . -name '*cache*' -type d -exec rm -rf {} +
 lint:
