@@ -7,7 +7,8 @@ from rich.console import Group
 from rich.live import Live
 from rich.text import Text
 
-from ..service import Maze, MazeGenerator
+from ..model import Maze
+from ..service import MazeGenerator
 from ..constants import MENU, WALL, WIDTH
 from .console_printer import ConsolePrinter, MazeText
 from ..constants import Dir
