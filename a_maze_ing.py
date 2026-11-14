@@ -1,5 +1,5 @@
 from src.controller import run_app
-from src.service.parse_config import MazeConfig
+from src.service import MazeConfig
 import argparse
 from pydantic import ValidationError
 
@@ -13,7 +13,7 @@ def main() -> None:
     args = parser.parse_args()
 
     try:
-        maze_config = MazeConfig.from_file(args.config_file)
+        maze_config: MazeConfig = MazeConfig.from_file(args.config_file)
         run_app(maze_config)
     except FileNotFoundError as err:
         print(f"{err}")

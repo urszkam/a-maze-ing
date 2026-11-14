@@ -9,9 +9,11 @@ from src.service.maze_generator.maze_solver import MazeSolver
 
 Node: TypeAlias = tuple[int, int]
 
+
 @pytest.fixture
 def solver() -> MazeSolver:
     return MazeSolver()
+
 
 def get_maze() -> np.ndarray:
     """
@@ -30,8 +32,8 @@ def get_maze() -> np.ndarray:
 
 
 def test_find_shortest_path_start(solver: MazeSolver) -> None:
-    start: Node = (0,1)
-    end: Node = (0,0)
+    start: Node = (0, 1)
+    end: Node = (0, 0)
 
     path: list[Node] = solver.find_shortest_path(get_maze(), start, end)
 
@@ -40,13 +42,14 @@ def test_find_shortest_path_start(solver: MazeSolver) -> None:
 
 
 def test_find_shortest_path_end(solver: MazeSolver) -> None:
-    start: Node = (0,1)
-    end: Node = (0,0)
+    start: Node = (0, 1)
+    end: Node = (0, 0)
 
     path: list[Node] = solver.find_shortest_path(get_maze(), start, end)
 
     assert path[-1] == end
     assert path[-1] != start
+
 
 @pytest.mark.parametrize(
     "start, end, expected", [
@@ -55,11 +58,13 @@ def test_find_shortest_path_end(solver: MazeSolver) -> None:
     ])
 def test_find_shortest_path_node_count(
     solver: MazeSolver,
-    start: Node, end: Node, expected: int) -> None:
+    start: Node, end: Node, expected: int
+) -> None:
 
     path: list[Node] = solver.find_shortest_path(get_maze(), start, end)
 
     assert len(path) == expected
+
 
 @pytest.mark.parametrize(
     "start, end, expected", [
@@ -71,7 +76,8 @@ def test_find_shortest_path_node_count(
     ])
 def test_find_shortest_path_nodes(
     solver: MazeSolver,
-    start: Node, end: Node, expected: list[Node]) -> None:
+    start: Node, end: Node, expected: list[list[Node]]
+) -> None:
     path: list[Node] = solver.find_shortest_path(get_maze(), start, end)
 
     assert path in expected

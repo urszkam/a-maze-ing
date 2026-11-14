@@ -85,4 +85,3 @@ def test_path_cell_bitmask(
 
 def test_full_path_bitmasks(maze: Maze) -> None:
     assert maze.get_full_path_bitmask() == [2, 12, 9, 2]
-

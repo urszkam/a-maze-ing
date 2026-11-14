@@ -104,7 +104,7 @@ class MazeGenerator:
             matrix: initial 2d array filled with number 15.
 
         Raises:
-            RuntimeError: When config area is not enough for logo and proper maze.
+            RuntimeError: When config area is not enough for a proper maze.
         """
         logo42 = np.array(LOGO42)
         logo_rows, logo_cols = logo42.shape

@@ -1,5 +1,5 @@
 from collections import Counter
-from typing import TypeAlias
+from typing import TypeAlias, cast
 
 import pytest
 
@@ -14,8 +14,9 @@ Edge: TypeAlias = tuple[Node, Node]
 
 
 @pytest.fixture(params=[KruskalAlgorithm, PrimAlgorithm])
-def algorithm(request) -> MazeAlgorithm:
-    return request.param()
+def algorithm(request: pytest.FixtureRequest) -> MazeAlgorithm:
+    algorithm_class = cast(type[MazeAlgorithm], request.param)
+    return algorithm_class()
 
 
 @pytest.mark.parametrize(
@@ -41,7 +42,7 @@ def test_perfect_maze_passage_count(
     [
         (2, 2, []),
         (3, 3, [(1, 1)]),
-        (4, 3, [(0, 1),(0, 2), (1, 2)])
+        (4, 3, [(0, 1), (0, 2), (1, 2)])
     ],
 )
 def test_passages_connect_neighbors(
@@ -58,7 +59,7 @@ def test_passages_connect_neighbors(
     "rows, cols, logo",
     [
         (2, 2, []),
-        (4, 3, [(0, 1),(0, 2), (1, 2)])
+        (4, 3, [(0, 1), (0, 2), (1, 2)])
     ],
 )
 def test_passages_within_maze_bounds(
