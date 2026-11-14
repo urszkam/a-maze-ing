@@ -57,7 +57,8 @@ def _display_maze(
     Returns:
         Text representation of the generated maze.
     """
-    logo_coords = generator.logo_coords
+    logo_coords = set(generator.logo_coords)
+    path_coords = set(generator.generate_path())
     maze_text = MazeText()
 
     for row_idx, row in enumerate(maze):
@@ -69,20 +70,30 @@ def _display_maze(
                     continue
 
                 is_logo = (row_idx, col_idx) in logo_coords
-                if dir is dir.E:
+                is_path = (row_idx, col_idx) in path_coords
+                is_entry = (row_idx, col_idx) == generator.entry
+                is_exit = (row_idx, col_idx) == generator.exit
+
+                # Handle East direction cell interiors (content inside the cell box)
+                if dir is Dir.E:
                     if is_logo:
                         maze_text.append_logo()
-                    elif (row_idx, col_idx) == generator.entry:
+                    elif is_entry:
                         maze_text.append_entry()
-                    elif (row_idx, col_idx) == generator.exit:
+                    elif is_exit:
                         maze_text.append_exit()
+                    elif is_path:
+                        maze_text.append_path()
                     else:
                         maze_text.append_wall(WALL["empty"])
 
+                # Handle wall borders (N, S, W, E boundaries)
                 wall_text = MazeText.get_wall_text(
                     dir=dir, row=row_idx, col=col_idx, maze=maze
                 )
+                
                 if is_logo and dir is Dir.S:
+                    # Safely append 42 logo styling across the southern boundary block
                     maze_text.append_wall_logo(wall_text)
                 else:
                     maze_text.append_wall(wall_text)
@@ -91,7 +102,6 @@ def _display_maze(
                 maze_text.append_nl()
 
     return maze_text
-
 
 def _build_frame(
         maze_text: Text,

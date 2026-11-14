@@ -210,8 +210,7 @@ class MazeText(Text):
 
     def append_entry(self) -> None:
         """Add entry character to be printed. """
-        self.append(WALL["entry"][:2], style="maze.entry")
-        self.append_path()
+        self.append(WALL["entry"], style="maze.entry")
 
     def append_exit(self) -> None:
         """Add exit character to be printed. """
