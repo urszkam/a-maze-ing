@@ -3,28 +3,22 @@
 # Lines starting with '#' are comments
 
 # Maze height
-HEIGHT=20
+HEIGHT=13
 
 # Maze width (number of cells)
-WIDTH=20
+WIDTH=17
 
 # Entry coordinates (x,y)
 ENTRY=0,0
 
 # Exit coordinates (x,y)
-EXIT=14,19
+EXIT=11,10
 
 # Output filename
 OUTPUT_FILE=maze.txt
 
 # Is the maze perfect?
-PERFECT=True
+PERFECT=False
 
 # Seed
-SEED=1000
-
-# Default Algorithm
-ALGORITHM=DFS
-
-# Display mode
-DISPLAY=ascii
+# SEED=666
