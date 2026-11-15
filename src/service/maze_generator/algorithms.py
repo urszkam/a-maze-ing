@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import random
+from random import Random
 from abc import ABC, abstractmethod
 from collections import Counter
 from enum import Enum
@@ -21,6 +21,7 @@ class MazeAlgorithm(ABC):
         self,
         shape: tuple[int, int],
         logo_coords: list[Node],
+        rand: Random,
         is_perfect: bool = True
     ) -> list[Edge]:
         """Select passages between adjacent non-logo cells.
@@ -28,6 +29,7 @@ class MazeAlgorithm(ABC):
         Args:
             shape: Matrix dimensions.
             logo_coords: Blocked cells as (row, column) pairs.
+            rand: Random generator shared across maze generations.
             is_perfect: Whether to require passages without cycles.
 
         Returns:
@@ -86,6 +88,7 @@ class KruskalAlgorithm(MazeAlgorithm):
         self,
         shape: tuple[int, int],
         logo_coords: list[Node],
+        rand: Random,
         is_perfect: bool = True
     ) -> list[Edge]:
         """Build a spanning forest of the grid, excluding logo cells.
@@ -93,6 +96,7 @@ class KruskalAlgorithm(MazeAlgorithm):
         Args:
             shape: Matrix dimensions.
             logo_coords: Blocked cells as (row, column) pairs.
+            rand: Random generator shared across maze generations.
             is_perfect: If false, remove dead-ends.
 
         Returns:
@@ -113,7 +117,7 @@ class KruskalAlgorithm(MazeAlgorithm):
                 if neighbor in nodes_map:
                     edges.append(((row, col), neighbor))
 
-        random.shuffle(edges)
+        rand.shuffle(edges)
 
         open_edges: list[Edge] = []
         for neighbor_nodes in edges:
@@ -188,6 +192,7 @@ class PrimAlgorithm(MazeAlgorithm):
         self,
         shape: tuple[int, int],
         logo_coords: list[Node],
+        rand: Random,
         is_perfect: bool = True
     ) -> list[Edge]:
         """Build a maze using randomized Prim's algorithm excluding logo cells.
@@ -195,6 +200,7 @@ class PrimAlgorithm(MazeAlgorithm):
         Args:
             shape: Matrix dimensions (rows, cols).
             logo_coords: Blocked cells as (row, column) pairs.
+            rand: Random generator shared across maze generations.
             is_perfect: Whether to require a perfect maze.
 
         Returns:
@@ -229,7 +235,7 @@ class PrimAlgorithm(MazeAlgorithm):
 
         while frontier:
             # Pick a random edge from the frontier
-            edge = random.choice(list(frontier.keys()))
+            edge = rand.choice(list(frontier.keys()))
             neighbor = frontier.pop(edge)
 
             if neighbor not in visited:
@@ -270,5 +276,5 @@ class AlgorithmType(str, Enum):
         new_idx = (algorithms.index(self) + 1) % len(algorithms)
         return algorithms[new_idx]
 
-    KRUSKAL = ("Kruskal's algorithm", KruskalAlgorithm())
-    PRIM = ("Prim's algorithm", PrimAlgorithm())
+    KRUSKAL = ("Kruskal", KruskalAlgorithm())
+    PRIM = ("Prim", PrimAlgorithm())

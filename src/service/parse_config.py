@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Any
+from .maze_generator.algorithms import AlgorithmType
 from pydantic import (
         BaseModel, Field, field_validator,
         model_validator, ValidationError
@@ -24,24 +25,20 @@ class MazeConfig(BaseModel):
         seed (optional): Random seed used for maze generation.
             Defaults to None.
         algorithm (optional): The algorithm used to generate the maze.
-            Defaults to None.
-        display (optional): The mode used to display/render the maze.
-            Defaults to None.
+            Defaults to Prim when omitted.
     """
     width: int = Field(..., gt=0, description="Width of the maze grid")
     height: int = Field(..., gt=0, description="Height of the maze grid")
     output_file: str = Field(..., description="Destination file path")
-    perfect: bool = Field(..., description="Whether the maze is perfect")
     entry: tuple[int, int] = Field(..., description="Start coordinates (x, y)")
     exit: tuple[int, int] = Field(..., description="End coordinates (x, y)")
 
     # Optional fields with default values
-    seed: int | None = Field(default=None,
-                                description="Random seed for maze")
-    algorithm: str | None = Field(default=None,
-                                     description="Algorithm to use")
-    display: str | None = Field(default=None,
-                                   description="Display mode")
+    perfect: bool = Field(
+        default=False, description="Whether the maze is perfect")
+    seed: int = Field(default=666, description="Random seed for maze")
+    algorithm: AlgorithmType = Field(
+        default=AlgorithmType.PRIM, description="Algorithm to use")
 
     @field_validator("entry", "exit", mode="before")
     @classmethod
