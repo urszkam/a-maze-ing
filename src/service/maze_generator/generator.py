@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+from random import Random
+
 import numpy as np
 from typing import Iterator, TypeAlias
 
 from src.constants import LOGO42, Dir
 from src.model import Maze
-from .algorithms import AlgorithmType, MazeAlgorithm
 from src.service.parse_config import MazeConfig
+from .algorithms import AlgorithmType, MazeAlgorithm
 from .maze_solver import MazeSolver
 
 Node: TypeAlias = tuple[int, int]
@@ -48,7 +50,8 @@ class MazeGenerator:
         self._solver = MazeSolver()
         self._logo_coords: list[Node] = []
         self._config = config
-        self.register_algorithm()
+        self._rand = Random(config.seed)
+        self.register_algorithm(config.algorithm)
 
         self._initialized = True
 
@@ -209,6 +212,7 @@ class MazeGenerator:
         open_edges = registered_algorithm.generate_open_edges(
             shape=matrix.shape,
             logo_coords=self._logo_coords,
+            rand=self._rand,
             is_perfect=self._config.perfect)
 
         matrix[matrix == -1] = 15

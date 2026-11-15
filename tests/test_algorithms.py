@@ -1,4 +1,5 @@
 from collections import Counter
+from random import Random
 from typing import TypeAlias, cast
 
 import pytest
@@ -32,7 +33,7 @@ def test_perfect_maze_passage_count(
     algorithm: MazeAlgorithm
 ) -> None:
 
-    edges = algorithm.generate_open_edges(shape, [])
+    edges = algorithm.generate_open_edges(shape, [], Random(42))
 
     assert len(set(edges)) == expected
 
@@ -48,7 +49,7 @@ def test_perfect_maze_passage_count(
 def test_passages_connect_neighbors(
     rows: int, cols: int, logo: list[Node], algorithm: MazeAlgorithm
 ) -> None:
-    edges = algorithm.generate_open_edges((rows, cols), logo)
+    edges = algorithm.generate_open_edges((rows, cols), logo, Random(42))
 
     for (row1, col1), (row2, col2) in edges:
         assert row1 == row2 or col1 == col2
@@ -65,7 +66,7 @@ def test_passages_connect_neighbors(
 def test_passages_within_maze_bounds(
     rows: int, cols: int, logo: list[Node], algorithm: MazeAlgorithm
 ) -> None:
-    edges = algorithm.generate_open_edges((rows, cols), logo)
+    edges = algorithm.generate_open_edges((rows, cols), logo, Random(42))
 
     for (row1, col1), (row2, col2) in edges:
         assert 0 <= row1 < rows and 0 <= col1 < cols
@@ -84,7 +85,7 @@ def test_logo_cells_have_no_passages(
     shape: tuple[int, int], logo: list[Node], expected: int,
     algorithm: MazeAlgorithm
 ) -> None:
-    edges: list[Edge] = algorithm.generate_open_edges(shape, logo)
+    edges: list[Edge] = algorithm.generate_open_edges(shape, logo, Random(42))
 
     assert len(edges) == expected
     for first, second in edges:
@@ -103,7 +104,8 @@ def test_logo_cells_have_no_passages(
 def test_braided_maze_no_dead_ends(
     shape: tuple[int, int], logo: list[Node], algorithm: MazeAlgorithm
 ) -> None:
-    edges = algorithm.generate_open_edges(shape, logo, is_perfect=False)
+    edges = algorithm.generate_open_edges(
+        shape, logo, Random(42), is_perfect=False)
     nodes_from_open_edges: tuple[Node, ...] = sum(edges, ())
     nodes_counter = Counter(nodes_from_open_edges)
     dead_ends: list[Node] = [
