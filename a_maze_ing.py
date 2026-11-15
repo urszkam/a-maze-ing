@@ -1,10 +1,11 @@
-from src.controller import run_app
-from src.service import MazeConfig
 import argparse
-from pydantic import ValidationError
+import signal
+import sys
+
+from src.controller import run_app
 
 
-def main() -> None:
+def main() -> int:
     """TODO placeholder.
     """
     parser = argparse.ArgumentParser(description="Parse and validate maze "
@@ -13,18 +14,10 @@ def main() -> None:
     args = parser.parse_args()
 
     try:
-        maze_config: MazeConfig = MazeConfig.from_file(args.config_file)
-        run_app(maze_config)
-    except FileNotFoundError as err:
-        print(f"{err}")
-        raise SystemExit(1)
-    except ValidationError as err:
-        print("Validation Error(s):")
-        for e in err.errors():
-            field = f"{e['loc'][0]}: " if e['loc'] else ""
-            print(f"  - {field}{e['msg']}")
-        raise SystemExit(1)
+        return run_app(args.config_file)
+    except KeyboardInterrupt:
+        return 128 + signal.SIGINT
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

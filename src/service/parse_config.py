@@ -3,7 +3,7 @@ from typing import Any
 from .maze_generator.algorithms import AlgorithmType
 from pydantic import (
         BaseModel, Field, field_validator,
-        model_validator, ValidationError
+        model_validator
 )
 
 
@@ -112,8 +112,8 @@ class MazeConfig(BaseModel):
         """
         path = Path(file_path)
         if not path.exists():
-            raise FileNotFoundError(f"Error: Configuration file '{path}'"
-                                    " not found")
+            raise FileNotFoundError(
+                f"Error: Configuration file '{path}' not found")
 
         config_data: dict[str, str] = {}
         with open(path, "r", encoding="utf-8") as file:

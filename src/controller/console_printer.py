@@ -40,7 +40,9 @@ class ConsolePrinter(Console):
         Args:
             error: Error message.
         """
+        self.stderr = True
         self.print(error, style="txt.error")
+        self.stderr = False
 
     def _update_color(self, style: str) -> None:
         """Rotate colors of a chosen element.
