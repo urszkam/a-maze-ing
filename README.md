@@ -119,7 +119,22 @@ The application displays a numbered menu and waits for a number from **1** to
 
 
 ### Config
-• The complete structure and format of your config file
+The program takes the name of the config file from the project root directory.
+The config consist of several mandatory and optional fields.
+Mandatory fields:
+- **WIDTH** (int) - number of maze rows, eg. 7
+- **HEIGHT** (int) - number of maze columns, eg. 12
+- **ENTRY** (tuple[int, int]) - x, y coordinates of the path start cell, eg. (11,8)
+- **EXIT** (tuple[int, int]) - x, y coordinates of the path end cell, eg. (0,3)
+- **OUTPUT_NAME** (str) - name of the output file where the final maze data is saved,
+  eg. maze.txt
+
+Optional fields:
+- **PERFECT** (bool) - bool whether the maze should be perfect with no loops, eg. True
+  (default value is False)
+- **SEED** (int) - Random seed used for maze generation
+- **ALGORITHM** (str) - name of the maze generation algorithm,
+  either Prim or Kruskal
 
 ### Linting
 Run the following command to check code style and types:
@@ -151,7 +166,12 @@ between which the user can switch while using the application.
 Both algorithms share the same braiding step, 
 which removes dead ends after the maze has been generated.
 
-#### XXX
+#### Prim's Algorithm
+
+Prim’s algorithm works by starting from an arbitrary vertex, adding the edge 
+that connects the tree to a new vertex, and repeating this process 
+until all vertices have been included in the tree.
+
 
 <table>
   <tr>
@@ -162,6 +182,8 @@ which removes dead ends after the maze has been generated.
     </td>
   </tr>
 </table>
+
+The time complexity of Prims's Algorithm is: O(n log(n)), where n is the number of nodes(cells).
 
 #### Kruskal's Algorithm
 
@@ -187,7 +209,7 @@ while grouping cells ensures that passages are added without creating cycles.
   </tr>
 </table>
 
-The time complexity Of Kruskal's Algorithm is: O(n log(n))
+The time complexity of Kruskal's Algorithm is: O(n log(n))
 
 #### Braiding Algorithm
 The braiding algorithm removes dead ends by opening an additional passage from
@@ -205,8 +227,8 @@ If no suitable neighbour exists (in case of cells neighboring with the logo), th
 ## Resources
 
 ### Maze Algorithms:
-- [Backtracking algotithms](https://www.geeksforgeeks.org/dsa/backtracking-algorithms/)
 - [Maze generation algotirhms](https://www.maze-generator.net/algorithms)
+- [Prim's algorithm](https://www.freecodecamp.org/news/prims-algorithm-explained-with-pseudocode/)
 - [Kruskal's algorithm](https://www.programiz.com/dsa/kruskal-algorithm)
 - [Kruskal's algorithm visualization](https://www.youtube.com/watch?v=8HeLu8wuLqo)
 - [Braiding a maze](https://mazeprintables.com/blog/perfect-vs-braid-mazes?utm_source=chatgpt.com#braid-a-copy-without-losing-track)
