@@ -12,13 +12,17 @@ WIDTH=17
 ENTRY=0,0
 
 # Exit coordinates (x,y)
-EXIT=11,10
+EXIT=15,10
 
 # Output filename
 OUTPUT_FILE=maze.txt
 
 # Is the maze perfect?
-PERFECT=False
+PERFECT=True
 
-# Seed
-# SEED=666
+#Seed
+SEED=666
+
+# Algorithm name
+ALGORITHM=Kruskal
+

@@ -1,7 +1,7 @@
 from enum import IntEnum
 from time import sleep
-from typing import Any
 
+from pydantic import ValidationError
 from readchar import readkey
 from rich.console import Group
 from rich.live import Live
@@ -181,41 +181,55 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
     return maze_text
 
 
-def run_app(
-        config: MazeConfig) -> None:
+def run_app(config_file: str) -> int:
     """Run the maze TUI application.
 
     Args:
         config: TODO placeholder for tests.
     """
     try:
-        generator = MazeGenerator(config)
-    except Exception as e:
-        cp.error(f"Error while generating maze: {e}")
-        return
+        maze_config: MazeConfig = MazeConfig.from_file(config_file)
+    except (OSError, UnicodeError) as e:
+        cp.error(f"{e}")
+        return 1
+    except ValidationError as e:
+        cp.error("Validation Error(s):")
+        for error in e.errors():
+            field = f"{error['loc'][0]}: " if error['loc'] else ""
+            cp.error(f"  - {field}{error['msg']}")
+        return 1
+
+    generator = MazeGenerator(maze_config)
 
     option: MenuOption | None = None
     error_msg = ""
 
-    with Live(console=cp, auto_refresh=False) as live:
-        maze_text = _animate_maze(live, generator)
+    try:
+        with Live(console=cp, auto_refresh=False) as live:
+            maze_text = _animate_maze(live, generator)
 
-        while option != MenuOption.EXIT:
-            live.update(
-                _build_frame(maze_text, generator.algorithm_name, error_msg),
-                refresh=True
-            )
+            while option != MenuOption.EXIT:
+                live.update(
+                    _build_frame(
+                        maze_text, generator.algorithm_name, error_msg),
+                    refresh=True
+                )
 
-            option, error_msg = _choose_option()
-            match (option):
-                case MenuOption.ROTATE_WALL_COLORS: cp.update_wall_color()
-                case MenuOption.ROTATE_42_COLORS: cp.update_42_color()
-                case MenuOption.SHOW_HIDE: cp.show_hide_path()
-                case MenuOption.REGENERATE:
-                    maze_text = _animate_maze(live, generator)
-                case MenuOption.CHANGE_ALGORITHM:
-                    generator.next_algorithm()
-                    maze_text = _animate_maze(live, generator)
-                case _: continue
+                option, error_msg = _choose_option()
+                match (option):
+                    case MenuOption.ROTATE_WALL_COLORS: cp.update_wall_color()
+                    case MenuOption.ROTATE_42_COLORS: cp.update_42_color()
+                    case MenuOption.SHOW_HIDE: cp.show_hide_path()
+                    case MenuOption.REGENERATE:
+                        maze_text = _animate_maze(live, generator)
+                    case MenuOption.CHANGE_ALGORITHM:
+                        generator.next_algorithm()
+                        maze_text = _animate_maze(live, generator)
+                    case _: continue
+    except RuntimeError as e:
+        cp.error(f"Error while generating maze: {e}")
+        return 1
 
     cp.print("Bye bye!")
+
+    return 0
