@@ -200,6 +200,9 @@ class MazeGenerator:
 
         Yields:
             Separate maze snapshots, ending with the completed maze.
+
+        Raises:
+            RuntimeError: When entry/exit in logo cell
         """
         matrix: np.ndarray = np.full(
             (self._config.height, self._config.width), 15
@@ -207,6 +210,14 @@ class MazeGenerator:
         self._insert_42(matrix)
         if not self._logo_coords:
             self._logo_coords = self._get_logo_coords(matrix)
+
+        if self.entry in self._logo_coords:
+            raise RuntimeError(
+                "ENTRY cannot be placed in the same cell as logo.")
+
+        if self.exit in self._logo_coords:
+            raise RuntimeError(
+                "EXIT cannot be placed in the same cell as logo.")
 
         registered_algorithm: MazeAlgorithm = self._maze_algorithm.algorithm
         open_edges = registered_algorithm.generate_open_edges(
