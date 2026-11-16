@@ -2,7 +2,9 @@ from pathlib import Path
 from typing import Any
 from .maze_generator.algorithms import AlgorithmType
 from pydantic import (
-        BaseModel, Field, field_validator,
+        BaseModel,
+        Field,
+        field_validator,
         model_validator
 )
 

@@ -12,3 +12,6 @@ __pycache__/
 # Virtual environment
 .venv/
 venv/
+
+# Maze output
+maze.txt

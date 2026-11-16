@@ -79,7 +79,7 @@ class Maze:
     @property
     def walls(self) -> np.ndarray:
         """Return the wall bitmask matrix.
-        
+
         Returns:
             Bitmask matrix representing walls in the maze.
         """

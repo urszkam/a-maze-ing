@@ -1,5 +1,3 @@
-"""Prepare maze grids and apply passages selected by an algorithm."""
-
 from __future__ import annotations
 
 from random import Random
@@ -9,9 +7,10 @@ from typing import Iterator, TypeAlias
 
 from src.constants import LOGO42, Dir
 from src.model import Maze
-from src.service.parse_config import MazeConfig
+from src.service import MazeConfig, OutputHandler
 from .algorithms import AlgorithmType, MazeAlgorithm
 from .maze_solver import MazeSolver
+
 
 Node: TypeAlias = tuple[int, int]
 Edge: TypeAlias = tuple[Node, Node]
@@ -51,6 +50,7 @@ class MazeGenerator:
         self._logo_coords: list[Node] = []
         self._config = config
         self._rand = Random(config.seed)
+        self._output_handler = OutputHandler(self._config.output_file)
         self.register_algorithm(config.algorithm)
 
         self._initialized = True
@@ -169,6 +169,9 @@ class MazeGenerator:
 
         Returns:
             2d maze array with binary walls representation.
+
+        Raises:
+            OSError: when the write operation cannot be completed
         """
         maze: np.ndarray | None = None
 
@@ -188,10 +191,14 @@ class MazeGenerator:
 
         Returns:
             Maze instance storing the completed maze.
+
+        Raises:
+            OSError: when the write operation cannot be completed
         """
         path: list[Node] = self.generate_path(maze)
         self._maze = Maze(maze, self._logo_coords, path,
                           self.entry, self.exit)
+        self._save_output()
 
         return self._maze
 
@@ -298,3 +305,12 @@ class MazeGenerator:
         output["path_dirs"] = self._generate_path_output()
 
         return output
+
+    def _save_output(self) -> None:
+        """Generates the final output txt and saves it to a file
+
+        Raises:
+            OSError: when the write operation cannot be completed
+        """
+        output_data: dict[str, str] = self._generate_output()
+        self._output_handler.save_output(output_data)

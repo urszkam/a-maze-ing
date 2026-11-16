@@ -168,6 +168,9 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
 
     Returns:
         Text representation of maze.
+
+    Raises:
+        OSError: when the write operation cannot be completed
     """
     path_visible: bool = cp.show_hide_path(False)
     for frame in generator.generate_maze_frames():
@@ -193,7 +196,7 @@ def run_app(config_file: str) -> int:
         cp.error(f"{e}")
         return 1
     except ValidationError as e:
-        cp.error("Validation Error(s):")
+        cp.error("Config Validation Error(s):")
         for error in e.errors():
             field = f"{error['loc'][0]}: " if error['loc'] else ""
             cp.error(f"  - {field}{error['msg']}")
@@ -226,6 +229,9 @@ def run_app(config_file: str) -> int:
                         generator.next_algorithm()
                         maze_text = _animate_maze(live, generator)
                     case _: continue
+    except OSError as e:
+        cp.error(f"Error while saving the maze output: {e}")
+        return 1
     except RuntimeError as e:
         cp.error(f"Error while generating maze: {e}")
         return 1
