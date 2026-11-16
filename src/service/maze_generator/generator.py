@@ -249,3 +249,52 @@ class MazeGenerator:
         return self._solver.find_shortest_path(
             walls, self.entry, self.exit
         )
+
+    def _generate_path_output(self) -> str:
+        path_dirs = ""
+
+        if not self._maze:
+            return path_dirs
+
+        path_bitmask: list[int] = self._maze.get_full_path_bitmask()
+
+        for idx in range(len(path_bitmask) - 1):
+            cell: int = path_bitmask[idx]
+            next: int = path_bitmask[idx + 1]
+            if cell & Dir.N and next & (prev_dir := Dir.S):
+                path_dirs += Dir.N.name
+            elif cell & Dir.S and next & (prev_dir := Dir.N):
+                path_dirs += Dir.S.name
+            elif cell & Dir.E and next & (prev_dir := Dir.W):
+                path_dirs += Dir.E.name
+            else:
+                path_dirs += Dir.W.name
+                prev_dir = Dir.E
+
+            path_bitmask[idx + 1] -= prev_dir
+
+        return path_dirs
+
+    def _generate_maze_output(self) -> str:
+        if not self._maze:
+            return ""
+
+        maze_bitmask: np.ndarray = self._maze.walls
+        maze_hex = np.char.mod('%x', maze_bitmask)
+
+        return '\n'.join(''.join(row) for row in maze_hex)
+
+    def _generate_output(self) -> dict[str, str]:
+        output = {}
+
+        output["maze"] = self._generate_maze_output()
+
+        entry_row, entry_col = self.entry
+        output["entry"] = f"{entry_col}, {entry_row} \t\t # entry (x, y)"
+
+        exit_row, exit_col = self.exit
+        output["exit"] = f"{exit_col}, {exit_row} \t\t # exit (x, y)"
+
+        output["path_dirs"] = self._generate_path_output()
+
+        return output

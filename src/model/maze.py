@@ -67,6 +67,24 @@ class Maze:
         """
         return self._logo_coords
 
+    @property
+    def path(self) -> list[Node]:
+        """Return the coordinates occupied by the path.
+
+        Returns:
+            Coordinates occupied by the path.
+        """
+        return self._path
+
+    @property
+    def walls(self) -> np.ndarray:
+        """Return the wall bitmask matrix.
+        
+        Returns:
+            Bitmask matrix representing walls in the maze.
+        """
+        return self._walls
+
     def is_logo(self, row: int, col: int) -> bool:
         """Check whether a cell belongs to the 42 logo.
 
@@ -198,8 +216,3 @@ class Maze:
             Integer bitmask representing the cell's walls.
         """
         return int(self._walls[row][col])
-
-    @property
-    def walls(self) -> np.ndarray:
-        """Return the wall bitmask matrix."""
-        return self._walls
