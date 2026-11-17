@@ -3,16 +3,16 @@
 # Lines starting with '#' are comments
 
 # Maze height
-HEIGHT=13
+HEIGHT=6
 
 # Maze width (number of cells)
-WIDTH=17
+WIDTH=8
 
 # Entry coordinates (x,y)
 ENTRY=0,0
 
 # Exit coordinates (x,y)
-EXIT=15,10
+EXIT=0,1
 
 # Output filename
 OUTPUT_FILE=maze.txt
@@ -24,5 +24,5 @@ PERFECT=True
 SEED=666
 
 # Algorithm name
-ALGORITHM=Kruskal
+ALGORITHM=Prim
 

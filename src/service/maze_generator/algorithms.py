@@ -39,11 +39,10 @@ class MazeAlgorithm(ABC):
 
     def _remove_dead_ends(self, open_edges: list[Edge]) -> None:
         """Open extra passages from dead ends to eligible neighbors.
+        Dead ends without an eligible neighboring passage remain unchanged.
 
         Args:
             open_edges: Existing passages between neighbor cells.
-
-        Dead ends without an eligible neighboring passage remain unchanged.
         """
         nodes_from_open_edges: tuple[Node, ...] = sum(
             open_edges, ())

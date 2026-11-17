@@ -211,6 +211,12 @@ def run_app(config_file: str) -> int:
         with Live(console=cp, auto_refresh=False) as live:
             maze_text = _animate_maze(live, generator)
 
+            if not generator.logo_coords:
+                cp.error(
+                    "Insufficient area for 42 logo. "
+                    "Maze generated without it."
+                )
+
             while option != MenuOption.EXIT:
                 live.update(
                     _build_frame(

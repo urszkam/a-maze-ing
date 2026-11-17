@@ -132,9 +132,8 @@ Mandatory fields:
 Optional fields:
 - **PERFECT** (bool) - bool whether the maze should be perfect with no loops, eg. True
   (default value is False)
-- **SEED** (int) - Random seed used for maze generation
-- **ALGORITHM** (str) - name of the maze generation algorithm,
-  either Prim or Kruskal
+- **SEED** (int) - Random seed used for maze generation, eg. 123 (default value is 666)
+- **ALGORITHM** (str) - name of the maze generation algorithm, either Prim or Kruskal
 
 ### Linting
 Run the following command to check code style and types:
@@ -260,4 +259,4 @@ The table below presents how the tasks were distributed between team members acr
 |---|---|---|
 | **I Iteration** | Input parsing, configuration loading and validation | Basic application flow with visualization, without implementing advanced features |
 | **II Iteration** | Implementation of Algorithm X for maze generation and a shortest-path finding algorithm | Implementation of Kruskal's algorithm for maze generation, a dead-end removal algorithm and animation improvements |
-| **III Iteration** | Output generation and creation of a maze generation package | Path visualization, documentation |
+| **III Iteration** | Improve config loading and creation of a maze generation package | Path visualization, documentation, output generation, unit tests |

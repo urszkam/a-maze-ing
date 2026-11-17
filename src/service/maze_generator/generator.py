@@ -17,23 +17,19 @@ Edge: TypeAlias = tuple[Node, Node]
 
 
 class MazeGenerator:
-    """Manage a singleton maze, its configuration and selected algorithm."""
-    _instance: MazeGenerator | None = None
-    _initialized: bool = False
+    """Manage a maze, its configuration and selected algorithm.
 
-    def __new__(cls, config: MazeConfig) -> MazeGenerator:
-        """Create singleton maze generator instance.
-
-        Args:
-            config: Maze settings class passed to the initializer.
-
-        Returns:
-            The existing or newly created instance.
-        """
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-
-        return cls._instance
+    Attributes:
+        _maze (Maze | None): Current maze or None before generation.
+        _solver (MazeSolver): Finds the shortest path from entry to exit.
+        _logo_coords (list[Node]): Logo cells as (row, column) pairs.
+            Empty if there is no logo.
+        _config (MazeConfig): Maze settings.
+        _rand (Random): Random number generator using the chosen seed.
+        _output_handler (OutputHandler): Saves the maze to a file.
+        _maze_algorithm (AlgorithmType): Algorithm used to create the maze.
+        _logo_initialized (bool): True after finding the logo cells.
+    """
 
     def __init__(self, config: MazeConfig) -> None:
         """Initialize the maze generator instance.
@@ -42,22 +38,18 @@ class MazeGenerator:
             config: Maze settings, including
                 dimensions and entry and exit coordinates.
         """
-        if self._initialized:
-            return
-
         self._maze: Maze | None = None
         self._solver = MazeSolver()
         self._logo_coords: list[Node] = []
         self._config = config
         self._rand = Random(config.seed)
         self._output_handler = OutputHandler(self._config.output_file)
+        self._logo_initialized = False
         self.register_algorithm(config.algorithm)
-
-        self._initialized = True
 
     @property
     def algorithm_name(self) -> str:
-        """Return the selected algorithm name, or an em dash if none is set."""
+        """Return the selected algorithm name or an em dash if none is set."""
         if self._maze_algorithm is None:
             return "—"
         return str(self._maze_algorithm.value)
@@ -114,7 +106,7 @@ class MazeGenerator:
         matrix_rows, matrix_cols = matrix.shape
 
         if logo_rows + 1 >= matrix_rows or logo_cols + 1 >= matrix_cols:
-            raise RuntimeError("Insufficient area for maze generation.")
+            return
 
         mid_row: int = matrix_rows // 2
         mid_col: int = matrix_cols // 2
@@ -136,6 +128,7 @@ class MazeGenerator:
         Returns:
             Logo coordinates as (row, column) pairs.
         """
+        self._logo_initialized = True
         return [tuple(coords) for coords in np.argwhere(matrix == -1)]
 
     def _open_maze_walls(
@@ -215,7 +208,7 @@ class MazeGenerator:
             (self._config.height, self._config.width), 15
         )
         self._insert_42(matrix)
-        if not self._logo_coords:
+        if not self._logo_initialized:
             self._logo_coords = self._get_logo_coords(matrix)
 
         if self.entry in self._logo_coords:
@@ -258,6 +251,12 @@ class MazeGenerator:
         )
 
     def _generate_path_output(self) -> str:
+        """Convert the solution path to direction letters.
+
+        Returns:
+            A string of N, E, S and W letters
+            or an empty string if there is no maze or path.
+        """
         path_dirs = ""
 
         if not self._maze:
@@ -283,6 +282,12 @@ class MazeGenerator:
         return path_dirs
 
     def _generate_maze_output(self) -> str:
+        """Convert maze walls to hexadecimal digits.
+
+        Returns:
+            String contining one line per maze row
+            or an empty string if there is no maze.
+        """
         if not self._maze:
             return ""
 
@@ -292,15 +297,21 @@ class MazeGenerator:
         return '\n'.join(''.join(row) for row in maze_hex)
 
     def _generate_output(self) -> dict[str, str]:
+        """Prepare maze data for saving to a file.
+
+        Returns:
+            A dictionary of strings, with maze rows,
+            entry and exit coordinates and path directions.
+        """
         output = {}
 
         output["maze"] = self._generate_maze_output()
 
         entry_row, entry_col = self.entry
-        output["entry"] = f"{entry_col}, {entry_row} \t\t # entry (x, y)"
+        output["entry"] = f"{entry_col}, {entry_row}"
 
         exit_row, exit_col = self.exit
-        output["exit"] = f"{exit_col}, {exit_row} \t\t # exit (x, y)"
+        output["exit"] = f"{exit_col}, {exit_row}"
 
         output["path_dirs"] = self._generate_path_output()
 
