@@ -1,9 +1,36 @@
+from pathlib import Path
+
+
 class InputHandler:
     @staticmethod
-    def get_config_data(file_name: str) -> dict[str, str]:
+    def get_config_data(file_path: str | Path) -> dict[str, str]:
+        """Reads config file with key-value pairs.
+
+        Args:
+            file_path (Union[str, Path]): Path to the configuration file.
+
+        Returns:
+            Dictionary with config variables names as keys and corresponding
+            values.
+
+        Raises:
+            FileNotFoundError: If the specified config file does not exist.
         """
-        """
-        pass
+        path = Path(file_path)
+        if not path.exists():
+            raise FileNotFoundError(
+                f"Error: Configuration file '{path}' not found")
+
+        config_data: dict[str, str] = {}
+        with open(path, "r", encoding="utf-8") as file:
+            for line in file:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" in line:
+                    key, value = line.split("=", 1)
+                    config_data[key.strip().lower()] = value.strip()
+        return config_data
 
 
 class OutputHandler:

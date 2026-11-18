@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Any
 from .maze_generator.algorithms import AlgorithmType
+from .file_handler import InputHandler
 from pydantic import (
         BaseModel,
         Field,
@@ -99,8 +100,8 @@ class MazeConfig(BaseModel):
 
     @classmethod
     def from_file(cls, file_path: str | Path) -> "MazeConfig":
-        """Reads config file, extracts key-value pairs, and instantiates
-        the validated MazeConfig model.
+        """Reads config file using InputHandler class, and validates
+        dictionary of configuration variables read from input file.
 
         Args:
             file_path (Union[str, Path]): Path to the configuration file.
@@ -112,19 +113,5 @@ class MazeConfig(BaseModel):
             FileNotFoundError: If the specified config file does not exist.
             ValidationError: If required fields are missing or data is invalid.
         """
-        path = Path(file_path)
-        if not path.exists():
-            raise FileNotFoundError(
-                f"Error: Configuration file '{path}' not found")
-
-        config_data: dict[str, str] = {}
-        with open(path, "r", encoding="utf-8") as file:
-            for line in file:
-                line = line.strip()
-                if not line or line.startswith("#"):
-                    continue
-                if "=" in line:
-                    key, value = line.split("=", 1)
-                    config_data[key.strip().lower()] = value.strip()
-
+        config_data = InputHandler.get_config_data(file_path)
         return cls.model_validate(config_data)
