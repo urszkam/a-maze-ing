@@ -1,7 +1,5 @@
-from pathlib import Path
 from typing import Any
 from .maze_generator.algorithms import AlgorithmType
-from .file_handler import InputHandler
 from pydantic import (
         BaseModel,
         Field,
@@ -97,21 +95,3 @@ class MazeConfig(BaseModel):
             raise ValueError("ENTRY and EXIT must be different locations.")
 
         return self
-
-    @classmethod
-    def from_file(cls, file_path: str | Path) -> "MazeConfig":
-        """Reads config file using InputHandler class, and validates
-        dictionary of configuration variables read from input file.
-
-        Args:
-            file_path (Union[str, Path]): Path to the configuration file.
-
-        Returns:
-            MazeConfig: A fully parsed and validated instance of MazeConfig.
-
-        Raises:
-            FileNotFoundError: If the specified config file does not exist.
-            ValidationError: If required fields are missing or data is invalid.
-        """
-        config_data = InputHandler.get_config_data(file_path)
-        return cls.model_validate(config_data)

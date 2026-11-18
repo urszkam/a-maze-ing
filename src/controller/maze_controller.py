@@ -11,7 +11,7 @@ from ..model import Maze
 from ..service import MazeGenerator, MazeConfig
 from ..constants import MENU, WALL, WIDTH, Dir
 from .console_printer import ConsolePrinter, MazeText
-
+from ..service import InputHandler
 
 cp = ConsolePrinter()
 
@@ -191,7 +191,8 @@ def run_app(config_file: str) -> int:
         config: TODO placeholder for tests.
     """
     try:
-        maze_config: MazeConfig = MazeConfig.from_file(config_file)
+        config: dict[str, str] = InputHandler.get_config_data(config_file)
+        maze_config: MazeConfig = MazeConfig.model_validate(config)
     except (OSError, UnicodeError) as e:
         cp.error(f"{e}")
         return 1
