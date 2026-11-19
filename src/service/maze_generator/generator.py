@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+from pathlib import Path
 from random import Random
 
 import numpy as np
@@ -7,7 +7,7 @@ from typing import Iterator, TypeAlias
 
 from src.constants import LOGO42, Dir
 from src.model import Maze
-from src.service import MazeConfig, OutputHandler
+from src.service import InputHandler, MazeConfig, OutputHandler
 from .algorithms import AlgorithmType, MazeAlgorithm
 from .maze_solver import MazeSolver
 
@@ -24,28 +24,31 @@ class MazeGenerator:
         _solver (MazeSolver): Finds the shortest path from entry to exit.
         _logo_coords (list[Node]): Logo cells as (row, column) pairs.
             Empty if there is no logo.
-        _config (MazeConfig): Maze settings.
+        _config: Read Maze settings from given file and validate using
+                 MazeConfig class.
         _rand (Random): Random number generator using the chosen seed.
         _output_handler (OutputHandler): Saves the maze to a file.
         _maze_algorithm (AlgorithmType): Algorithm used to create the maze.
         _logo_initialized (bool): True after finding the logo cells.
     """
 
-    def __init__(self, config: MazeConfig) -> None:
+    def __init__(self, config_file: str | Path) -> None:
         """Initialize the maze generator instance.
 
         Args:
-            config: Maze settings, including
-                dimensions and entry and exit coordinates.
+            config_file: Name of the input file containing
+            configuration variables.
         """
         self._maze: Maze | None = None
         self._solver = MazeSolver()
         self._logo_coords: list[Node] = []
-        self._config = config
-        self._rand = Random(config.seed)
+        self._config = MazeConfig.model_validate(
+                InputHandler.get_config_data(config_file)
+        )
+        self._rand = Random(self._config.seed)
         self._output_handler = OutputHandler(self._config.output_file)
         self._logo_initialized = False
-        self.register_algorithm(config.algorithm)
+        self.register_algorithm(self._config.algorithm)
 
     @property
     def algorithm_name(self) -> str:

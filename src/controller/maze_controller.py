@@ -8,10 +8,9 @@ from rich.live import Live
 from rich.text import Text
 
 from ..model import Maze
-from ..service import MazeGenerator, MazeConfig
+from ..service import MazeGenerator
 from ..constants import MENU, WALL, WIDTH, Dir
 from .console_printer import ConsolePrinter, MazeText
-from ..service import InputHandler
 
 cp = ConsolePrinter()
 
@@ -191,8 +190,7 @@ def run_app(config_file: str) -> int:
         config: TODO placeholder for tests.
     """
     try:
-        config: dict[str, str] = InputHandler.get_config_data(config_file)
-        maze_config: MazeConfig = MazeConfig.model_validate(config)
+        generator = MazeGenerator(config_file)
     except (OSError, UnicodeError) as e:
         cp.error(f"{e}")
         return 1
@@ -202,8 +200,6 @@ def run_app(config_file: str) -> int:
             field = f"{error['loc'][0]}: " if error['loc'] else ""
             cp.error(f"  - {field}{error['msg']}")
         return 1
-
-    generator = MazeGenerator(maze_config)
 
     option: MenuOption | None = None
     error_msg = ""

@@ -1,55 +1,42 @@
-import pytest
 import numpy as np
-from src.service.parse_config import MazeConfig
 from src.service.maze_generator.generator import MazeGenerator
 from pathlib import Path
-from typing import Generator
 
 
-@pytest.fixture(autouse=True)
-def reset_maze_generator_singleton() -> Generator[None, None, None]:
-    """Resets the MazeGenerator singleton state before and after each test."""
-    # Using setattr to safely bypass mypy class attribute checks on dynamic
-    # singletons
-    setattr(MazeGenerator, "_instance", None)
-    setattr(MazeGenerator, "_initialized", False)
-    yield
-    setattr(MazeGenerator, "_instance", None)
-    setattr(MazeGenerator, "_initialized", False)
+def _write_config_file(
+    path: Path,
+    output_file: str,
+    seed: int,
+    width: int = 10,
+    height: int = 10
+) -> Path:
+    """Helper to write a config file for testing."""
+    config_content = f"""
+    width = {width}
+    height = {height}
+    output_file = {output_file}
+    entry = 0,0
+    exit = {width - 1},{height - 1}
+    seed = {seed}
+    """
+    config_path = path / "config.txt"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text(config_content)
+    return config_path
 
 
 def test_same_seed_produces_identical_mazes(tmp_path: Path) -> None:
     """Test that two generators configured with the same seed generate
       identical maze walls."""
-    # Use temporary file paths for output files to avoid cluttering the
-    # workspace
     out1 = tmp_path / "maze1.txt"
     out2 = tmp_path / "maze2.txt"
 
-    config1 = MazeConfig(
-        width=10,
-        height=10,
-        output_file=str(out1),
-        entry=(0, 0),
-        exit=(9, 9),
-        seed=42
-    )
-    gen1 = MazeGenerator(config1)
+    cfg1 = _write_config_file(tmp_path / "dir1", str(out1), seed=42)
+    gen1 = MazeGenerator(cfg1)
     maze1 = gen1.generate_maze()
 
-    # Reset singleton state
-    setattr(MazeGenerator, "_instance", None)
-    setattr(MazeGenerator, "_initialized", False)
-
-    config2 = MazeConfig(
-        width=10,
-        height=10,
-        output_file=str(out2),
-        entry=(0, 0),
-        exit=(9, 9),
-        seed=42
-    )
-    gen2 = MazeGenerator(config2)
+    cfg2 = _write_config_file(tmp_path / "dir2", str(out2), seed=42)
+    gen2 = MazeGenerator(cfg2)
     maze2 = gen2.generate_maze()
 
     # The wall structures should be completely identical for the same seed
@@ -62,30 +49,12 @@ def test_different_seeds_produce_different_mazes(tmp_path: Path) -> None:
     out1 = tmp_path / "maze1.txt"
     out3 = tmp_path / "maze3.txt"
 
-    config1 = MazeConfig(
-        width=10,
-        height=10,
-        output_file=str(out1),
-        entry=(0, 0),
-        exit=(9, 9),
-        seed=42
-    )
-    gen1 = MazeGenerator(config1)
+    cfg1 = _write_config_file(tmp_path / "dir1", str(out1), seed=42)
+    gen1 = MazeGenerator(cfg1)
     maze1 = gen1.generate_maze()
 
-    # Reset singleton state
-    setattr(MazeGenerator, "_instance", None)
-    setattr(MazeGenerator, "_initialized", False)
-
-    config3 = MazeConfig(
-        width=10,
-        height=10,
-        output_file=str(out3),
-        entry=(0, 0),
-        exit=(9, 9),
-        seed=999  # Different seed
-    )
-    gen3 = MazeGenerator(config3)
+    cfg3 = _write_config_file(tmp_path / "dir3", str(out3), seed=999)
+    gen3 = MazeGenerator(cfg3)
     maze3 = gen3.generate_maze()
 
     # The wall structures should differ when using distinct random seeds
