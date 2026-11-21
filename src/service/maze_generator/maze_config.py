@@ -1,5 +1,5 @@
 from typing import Any
-from .maze_generator.algorithms import AlgorithmType
+from .algorithms import AlgorithmType
 from pydantic import (
         BaseModel,
         Field,
@@ -69,7 +69,7 @@ class MazeConfig(BaseModel):
         return value
 
     @model_validator(mode="after")
-    def validate_logic(self) -> "MazeConfig":
+    def validate_coordinates(self) -> "MazeConfig":
         """Applies advanced business rules and maze boundary constraints.
 
         Ensures that entry and exit coordinates fall in the grid dimensions

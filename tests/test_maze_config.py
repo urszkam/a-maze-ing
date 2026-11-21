@@ -1,6 +1,8 @@
 import pytest
+
 from pydantic import ValidationError
-from src.service.parse_config import MazeConfig
+
+from src.service.maze_generator.maze_config import MazeConfig
 from src.service.maze_generator.algorithms import AlgorithmType
 
 

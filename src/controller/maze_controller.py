@@ -7,8 +7,8 @@ from rich.console import Group
 from rich.live import Live
 from rich.text import Text
 
-from ..model import Maze
-from ..service import MazeGenerator
+from ..service.maze_generator.maze import Maze
+from ..service import MazeGenerator, InputHandler
 from ..constants import MENU, WALL, WIDTH, Dir
 from .console_printer import ConsolePrinter, MazeText
 
@@ -187,13 +187,19 @@ def run_app(config_file: str) -> int:
     """Run the maze TUI application.
 
     Args:
-        config: TODO placeholder for tests.
+        config: name of the file with configuration data.
+
+    Returns:
+        1 if ends with error, otherwise 0
     """
     try:
-        generator = MazeGenerator(config_file)
+        config_data: dict[str, str] = InputHandler.get_config_data(config_file)
     except (OSError, UnicodeError) as e:
         cp.error(f"{e}")
         return 1
+
+    try:
+        generator = MazeGenerator(config_data)
     except ValidationError as e:
         cp.error("Config Validation Error(s):")
         for error in e.errors():

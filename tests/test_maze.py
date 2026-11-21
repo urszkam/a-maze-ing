@@ -4,7 +4,7 @@ import pytest
 from typing import TypeAlias
 
 from src.constants import Dir
-from src.model import Maze
+from src.service.maze_generator.maze import Maze
 
 
 Node: TypeAlias = tuple[int, int]

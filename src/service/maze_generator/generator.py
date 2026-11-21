@@ -1,13 +1,13 @@
 from __future__ import annotations
-from pathlib import Path
 from random import Random
 
 import numpy as np
 from typing import Iterator, TypeAlias
 
 from src.constants import LOGO42, Dir
-from src.model import Maze
-from src.service import InputHandler, MazeConfig, OutputHandler
+from .maze import Maze
+from .maze_config import MazeConfig
+from src.service import OutputHandler
 from .algorithms import AlgorithmType, MazeAlgorithm
 from .maze_solver import MazeSolver
 
@@ -24,31 +24,31 @@ class MazeGenerator:
         _solver (MazeSolver): Finds the shortest path from entry to exit.
         _logo_coords (list[Node]): Logo cells as (row, column) pairs.
             Empty if there is no logo.
-        _config: Read Maze settings from given file and validate using
-                 MazeConfig class.
+        _config (MazeConfig):
         _rand (Random): Random number generator using the chosen seed.
         _output_handler (OutputHandler): Saves the maze to a file.
         _maze_algorithm (AlgorithmType): Algorithm used to create the maze.
         _logo_initialized (bool): True after finding the logo cells.
     """
 
-    def __init__(self, config_file: str | Path) -> None:
+    def __init__(self, config_data: dict[str, str]) -> None:
         """Initialize the maze generator instance.
 
         Args:
             config_file: Name of the input file containing
             configuration variables.
+
+        Raises:
+            ValidationError: When config data is incorrect
         """
+        self._initialize_maze_config(config_data)
+        self._register_algorithm(self._config.algorithm)
         self._maze: Maze | None = None
         self._solver = MazeSolver()
         self._logo_coords: list[Node] = []
-        self._config = MazeConfig.model_validate(
-                InputHandler.get_config_data(config_file)
-        )
         self._rand = Random(self._config.seed)
         self._output_handler = OutputHandler(self._config.output_file)
         self._logo_initialized = False
-        self.register_algorithm(self._config.algorithm)
 
     @property
     def algorithm_name(self) -> str:
@@ -81,7 +81,7 @@ class MazeGenerator:
         """Return logo coordinates independently of the current wall masks."""
         return self._logo_coords
 
-    def register_algorithm(
+    def _register_algorithm(
             self,
             algorithm: AlgorithmType = AlgorithmType.KRUSKAL) -> None:
         """Select the initial algorithm.
@@ -90,6 +90,17 @@ class MazeGenerator:
             algorithm: Initial choice, used only when no algorithm is selected.
         """
         self._maze_algorithm = algorithm
+
+    def _initialize_maze_config(self, config_data: dict[str, str]) -> None:
+        """Validate and initialize maze config with configuration information.
+
+        Args:
+            config_data: dictionary with configuration data.
+
+        Raises:
+            ValidationError: When config data is incorrect.
+        """
+        self._config = MazeConfig.model_validate(config_data)
 
     def next_algorithm(self) -> None:
         """Select the next available algorithm."""
