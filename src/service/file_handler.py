@@ -2,6 +2,8 @@ from pathlib import Path
 
 
 class InputHandler:
+    """Read configuration key-value pairs from a text file."""
+
     @staticmethod
     def get_config_data(file_path: str | Path) -> dict[str, str]:
         """Reads config file with key-value pairs.

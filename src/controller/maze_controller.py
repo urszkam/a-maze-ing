@@ -16,6 +16,8 @@ cp = ConsolePrinter()
 
 
 class MenuOption(IntEnum):
+    """Map menu numbers to maze interface actions."""
+
     REGENERATE = 1
     SHOW_HIDE = 2
     ROTATE_WALL_COLORS = 3
@@ -29,7 +31,7 @@ def _choose_option() -> tuple[MenuOption | None, str]:
 
     Returns:
         Chosen MenuOption or None in case of incorrect choice.
-        Error mesage in case of incorrect choice.
+        Error message in case of incorrect choice.
     """
     key = readkey()
     try:
@@ -193,7 +195,7 @@ def run_app(config_file: str) -> int:
     """Run the maze TUI application.
 
     Args:
-        config: name of the file with configuration data.
+        config_file: name of the file with configuration data.
 
     Returns:
         1 if ends with error, otherwise 0

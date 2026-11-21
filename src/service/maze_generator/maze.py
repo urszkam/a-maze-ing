@@ -141,8 +141,10 @@ class Maze:
             col: Column index of the cell.
 
         Returns:
-            Previous path cell, or None if the cell is not on the path or is
-            the first path cell.
+            Previous path cell, or None for the first path cell.
+
+        Raises:
+            ValueError: If the cell is not on the path.
         """
         idx = self._path.index((row, col))
 
@@ -156,15 +158,25 @@ class Maze:
             col: Column index of the cell.
 
         Returns:
-            Next path cell, or None if the cell is not on the path or is the
-            last path cell.
+            Next path cell, or None for the last path cell.
+
+        Raises:
+            ValueError: If the cell is not on the path.
         """
         idx = self._path.index((row, col))
 
         return self._path[idx + 1] if idx + 1 < len(self._path) else None
 
     def get_path_cell_bitmask(self, row: int, col: int) -> int | None:
-        """
+        """Compute directions connecting a cell to its path neighbors.
+
+        Args:
+            row: Row index of the cell.
+            col: Column index of the cell.
+
+        Returns:
+            Direction bitmask for open passages to adjacent path cells,
+            or None if the cell is not on the path.
         """
         if not self.is_path(row, col):
             return None
@@ -194,7 +206,10 @@ class Maze:
         return path_bitmask
 
     def get_full_path_bitmask(self) -> list[int]:
-        """
+        """Return cell direction bitmasks in path order.
+
+        Returns:
+            Bitmasks from entry to exit, or an empty list for an empty path.
         """
         if not self._path:
             return []

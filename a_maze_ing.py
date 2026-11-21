@@ -6,10 +6,14 @@ from src.controller import run_app
 
 
 def main() -> int:
-    """TODO placeholder.
+    """Parse the config_file argument and run application generating a maze.
+
+    Returns:
+        Application exit code, or 130 when interrupted with Ctrl+C.
     """
-    parser = argparse.ArgumentParser(description="Parse and validate maze "
-                                                 "config file using Pydantic.")
+    parser = argparse.ArgumentParser(
+        description="Generate and display maze using config from a file"
+    )
     parser.add_argument("config_file", type=str, help="Path to config file.")
     args = parser.parse_args()
 

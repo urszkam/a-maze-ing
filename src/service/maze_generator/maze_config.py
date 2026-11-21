@@ -11,25 +11,25 @@ from pydantic import (
 class MazeConfig(BaseModel):
     """Configuration parser and validator for maze generation parameters.
 
-    This class reads a configuration text file, parses key-value pairs,
-    and validates constraints such as grid boundaries, mandatory fields,
-    and unique entry/exit points using Pydantic.
+    This class converts raw configuration values and validates grid
+    boundaries, mandatory fields and distinct entry/exit points using Pydantic.
 
     Attributes:
-        width: The width of the maze grid. Must be greater than 0.
-        height: The height of the maze grid. Must be greater than 0.
+        width: Width of the maze grid, from 1 to 100 inclusive.
+        height: Height of the maze grid, from 1 to 100 inclusive.
         output_file: The file path to save generated maze.
         perfect: Flag indicating if the maze should be perfect
             (no loops, unique path between any two points).
         entry: The (x, y) start coordinates of the maze.
         exit: The (x, y) end coordinates of the maze.
         seed (optional): Random seed used for maze generation.
-            Defaults to None.
+            Defaults to 666.
         algorithm (optional): The algorithm used to generate the maze.
             Defaults to Prim when omitted.
     """
     width: int = Field(..., gt=0, le=100, description="Width of the maze grid")
-    height: int = Field(..., gt=0, le=100, description="Height of the maze grid")
+    height: int = Field(
+        ..., gt=0, le=100, description="Height of the maze grid")
     output_file: str = Field(..., description="Destination file path")
     entry: tuple[int, int] = Field(..., description="Start coordinates (x, y)")
     exit: tuple[int, int] = Field(..., description="End coordinates (x, y)")

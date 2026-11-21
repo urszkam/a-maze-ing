@@ -24,7 +24,7 @@ class MazeGenerator:
         _solver (MazeSolver): Finds the shortest path from entry to exit.
         _logo_coords (list[Node]): Logo cells as (row, column) pairs.
             Empty if there is no logo.
-        _config (MazeConfig):
+        _config (MazeConfig): Validated maze generation settings.
         _rand (Random): Random number generator using the chosen seed.
         _output_handler (OutputHandler): Saves the maze to a file.
         _maze_algorithm (AlgorithmType): Algorithm used to create the maze.
@@ -35,8 +35,7 @@ class MazeGenerator:
         """Initialize the maze generator instance.
 
         Args:
-            config_file: Name of the input file containing
-            configuration variables.
+            config_data: Dictionary of raw configuration values.
 
         Raises:
             ValidationError: When config data is incorrect
@@ -172,7 +171,7 @@ class MazeGenerator:
         """Generate a maze using an algorithm.
 
         Returns:
-            2d maze array with binary walls representation.
+            Maze object containing walls, logo cells and the solution path.
 
         Raises:
             OSError: when the write operation cannot be completed
@@ -254,10 +253,14 @@ class MazeGenerator:
             yield matrix.copy()
 
     def generate_path(self, walls: np.ndarray) -> list[Node]:
-        """ Generates the shortest path from entry to exit.
+        """Generate the shortest path from entry to exit.
+
+        Args:
+            walls: Matrix of cell wall bitmasks.
 
         Returns:
-            List of path coordinates
+            Path coordinates as (row, column) pairs, or an empty list
+            if the exit is unreachable.
         """
         return self._solver.find_shortest_path(
             walls, self.entry, self.exit
@@ -298,7 +301,7 @@ class MazeGenerator:
         """Convert maze walls to hexadecimal digits.
 
         Returns:
-            String contining one line per maze row
+            String containing one line per maze row
             or an empty string if there is no maze.
         """
         if not self._maze:
