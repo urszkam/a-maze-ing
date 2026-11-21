@@ -28,8 +28,8 @@ class MazeConfig(BaseModel):
         algorithm (optional): The algorithm used to generate the maze.
             Defaults to Prim when omitted.
     """
-    width: int = Field(..., gt=0, description="Width of the maze grid")
-    height: int = Field(..., gt=0, description="Height of the maze grid")
+    width: int = Field(..., gt=0, le=100, description="Width of the maze grid")
+    height: int = Field(..., gt=0, le=100, description="Height of the maze grid")
     output_file: str = Field(..., description="Destination file path")
     entry: tuple[int, int] = Field(..., description="Start coordinates (x, y)")
     exit: tuple[int, int] = Field(..., description="End coordinates (x, y)")
