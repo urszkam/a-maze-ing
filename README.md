@@ -122,8 +122,8 @@ The application displays a numbered menu and waits for a number from **1** to
 The program takes the name of the config file from the project root directory.
 The config consist of several mandatory and optional fields.
 Mandatory fields:
-- **WIDTH** (int) - number of maze rows, eg. 7
-- **HEIGHT** (int) - number of maze columns, eg. 12
+- **WIDTH** (int) - number of maze columns, eg. 7
+- **HEIGHT** (int) - number of maze rows, eg. 12
 - **ENTRY** (tuple[int, int]) - x, y coordinates of the path start cell, eg. (11,8)
 - **EXIT** (tuple[int, int]) - x, y coordinates of the path end cell, eg. (0,3)
 - **OUTPUT_NAME** (str) - name of the output file where the final maze data is saved,

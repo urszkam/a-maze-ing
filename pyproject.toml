@@ -3,6 +3,7 @@ name = "a-maze-ing"
 version = "0.1.0"
 description = ""
 readme = "README.md"
+license = { file = "LICENSE.md" }
 authors = [
     { name = "Ula Kaminska", email = "urkamins@student.42warsaw.pl" },
     { name = "Vineet Jain", email = "vijain@student.42warsaw.pl" }
