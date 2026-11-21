@@ -178,17 +178,15 @@ class MazeGenerator:
             RuntimeError: If generation produces no frames or entry/exit
                 overlaps the logo.
         """
-        maze: np.ndarray | None = None
+        for _ in self.generate_maze_frames():
+            pass
 
-        for generated_maze in self.generate_maze_frames():
-            maze = generated_maze
-
-        if maze is None:
+        if self._maze is None:
             raise RuntimeError("Maze generation produced no frames.")
 
-        return self.store_maze(maze)
+        return self._maze
 
-    def store_maze(self, maze: np.ndarray) -> Maze:
+    def _store_maze(self, maze: np.ndarray) -> Maze:
         """Store a completed maze from its final wall matrix.
 
         Args:
@@ -207,14 +205,15 @@ class MazeGenerator:
 
         return self._maze
 
-    def generate_maze_frames(self) -> Iterator[np.ndarray]:
-        """Return the maze step by step, with at most 30 animation frames.
+    def generate_maze_frames(self) -> Iterator[Maze]:
+        """Yield maze snapshots and finalize the maze when fully consumed.
 
         Yields:
-            Separate maze snapshots, ending with the completed maze.
+            Maze objects with independent wall snapshots and no solution path.
 
         Raises:
-            RuntimeError: When entry/exit in logo cell
+            RuntimeError: When entry/exit in logo cell.
+            OSError: When saving the completed maze fails.
         """
         matrix: np.ndarray = np.full(
             (self._config.height, self._config.width), 15
@@ -232,14 +231,15 @@ class MazeGenerator:
                 "EXIT cannot be placed in the same cell as logo.")
 
         registered_algorithm: MazeAlgorithm = self._maze_algorithm.algorithm
-        open_edges = registered_algorithm.generate_open_edges(
+        open_edges: list[Edge] = registered_algorithm.generate_open_edges(
             shape=matrix.shape,
             logo_coords=self._logo_coords,
             rand=self._rand,
             is_perfect=self._config.perfect)
 
         matrix[matrix == -1] = 15
-        yield matrix.copy()
+        yield Maze(matrix.copy(), self._logo_coords, [],
+                   self.entry, self.exit)
 
         frame_count = min(
             30, len(open_edges),
@@ -250,7 +250,10 @@ class MazeGenerator:
             last_edge = (frame + 1) * len(open_edges) // frame_count
             self._open_maze_walls(matrix, open_edges[first_edge:last_edge])
 
-            yield matrix.copy()
+            yield Maze(matrix.copy(), self._logo_coords, [],
+                       self.entry, self.exit)
+
+        self._store_maze(matrix)
 
     def generate_path(self, walls: np.ndarray) -> list[Node]:
         """Generate the shortest path from entry to exit.

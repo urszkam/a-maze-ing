@@ -1,3 +1,5 @@
+"""Handle terminal menu input and render maze generation animations."""
+
 from enum import IntEnum
 from time import sleep
 
@@ -48,7 +50,14 @@ def _choose_option() -> tuple[MenuOption | None, str]:
 def _append_wall_or_path(
         maze_text: MazeText, dir: Dir,
         wall_text: str, path_mask: int | None) -> None:
-    """Append a wall segment, replacing it with a path where applicable."""
+    """Append a wall segment, replacing it with a path where applicable.
+
+    Args:
+        maze_text: Text buffer to extend in place.
+        dir: Direction of the cell wall being rendered.
+        wall_text: Wall characters for the selected direction.
+        path_mask: Path direction bitmask, or None for a cell off the path.
+    """
     if path_mask is None or not path_mask & dir:
         maze_text.append_wall(wall_text)
         return
@@ -67,7 +76,14 @@ def _append_wall_or_path(
 def _append_middle_path(
         maze_text: MazeText, path_mask: int, is_entry: bool,
         is_exit: bool) -> None:
-    """Append the horizontal representation of a path cell."""
+    """Append the horizontal representation of a path cell.
+
+    Args:
+        maze_text: Text buffer to extend in place.
+        path_mask: Bitmask of the path directions through the cell.
+        is_entry: Whether to draw the entry marker in the cell.
+        is_exit: Whether to draw the exit marker in the cell.
+    """
     prefix, mid, sufix = MazeText.get_path_text(path_mask)
     maze_text.append_path(prefix)
 
@@ -101,10 +117,11 @@ def _display_maze(maze: Maze) -> MazeText:
                 if dir is Dir.W and col_idx != 0:
                     continue
 
-                is_logo = maze.is_logo(row_idx, col_idx)
-                is_entry = maze.is_entry(row_idx, col_idx)
-                is_exit = maze.is_exit(row_idx, col_idx)
-                path_mask = maze.get_path_cell_bitmask(row_idx, col_idx)
+                is_logo: bool = maze.is_logo(row_idx, col_idx)
+                is_entry: bool = maze.is_entry(row_idx, col_idx)
+                is_exit: bool = maze.is_exit(row_idx, col_idx)
+                path_mask: int | None = maze.get_path_cell_bitmask(
+                    row_idx, col_idx)
 
                 # middle part of the cell
                 if dir is Dir.E:
@@ -176,19 +193,20 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
             overlaps the logo.
     """
     path_visible: bool = cp.show_hide_path(False)
-    maze_text: MazeText | None = None
-    for frame in generator.generate_maze_frames():
-        maze = generator.store_maze(frame)
-        maze_text = _display_maze(maze)
-        live.update(_build_frame(
-            maze_text, generator.algorithm_name), refresh=True)
-        sleep(0.01)
-    cp.show_hide_path(path_visible)
+    try:
+        for maze in generator.generate_maze_frames():
+            maze_text: MazeText = _display_maze(maze)
+            live.update(_build_frame(
+                maze_text, generator.algorithm_name), refresh=True)
+            sleep(0.01)
+    finally:
+        cp.show_hide_path(path_visible)
 
-    if maze_text is None:
+    completed_maze = generator.maze
+    if completed_maze is None:
         raise RuntimeError("Maze generation produced no frames.")
 
-    return maze_text
+    return _display_maze(completed_maze)
 
 
 def run_app(config_file: str) -> int:
