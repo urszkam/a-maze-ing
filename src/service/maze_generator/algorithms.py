@@ -223,6 +223,7 @@ class PrimAlgorithm(MazeAlgorithm):
         frontier: dict[Edge, Node] = {}
 
         def add_frontier_neighbors(node: Node) -> None:
+            """Add edges from the given cell to unvisited grid neighbors."""
             r, c = node
             for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                 neighbor = (r + dr, c + dc)
@@ -254,11 +255,11 @@ class AlgorithmType(str, Enum):
 
     def __new__(cls, title: str, maze_algorithm: MazeAlgorithm
                 ) -> AlgorithmType:
-        """Create an enum member and instantiate its algorithm.
+        """Create an enum member holding an existing algorithm instance.
 
         Args:
             title: Display name used as the enum value.
-            maze_algorithm: Algorithm class to instantiate without arguments.
+            maze_algorithm: Algorithm instance associated with this member.
 
         Returns:
             Enum member holding the display name and algorithm instance.

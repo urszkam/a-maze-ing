@@ -6,16 +6,21 @@ from src.constants import Dir
 
 Node: TypeAlias = tuple[int, int]
 
+
 class MazeSolver:
-    """Finds the shortest path through the generated maze using Breadth-First Search (BFS)."""
+    """Finds the shortest path through the generated maze using
+    Breadth-First Search (BFS).
+    """
 
     def find_shortest_path(
         self, maze: np.ndarray, entry: Node, exit: Node
     ) -> list[Node]:
-        """Compute the shortest path from entry to exit considering wall bitmasks.
+        """Compute the shortest path from entry to exit considering wall
+        bitmasks.
 
         Returns:
-            A list of coordinate nodes representing the path, or empty list if unreachable.
+            A list of coordinate nodes representing the path, or empty
+            list if unreachable.
         """
         rows, cols = maze.shape
         queue: deque[Node] = deque([entry])

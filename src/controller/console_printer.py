@@ -10,6 +10,8 @@ from src.constants import THEME, WALL, COLORS, Dir
 
 
 class ConsolePrinter(Console):
+    """Provide a shared themed console and maze display settings."""
+
     _instance: ConsolePrinter | None = None
     _initialized: bool = False
 
@@ -87,6 +89,8 @@ class ConsolePrinter(Console):
 
 
 class MazeText(Text):
+    """Build styled terminal text for maze walls, cells and paths."""
+
     @staticmethod
     def _get_bottom_wall(
             west: bool,
@@ -151,7 +155,7 @@ class MazeText(Text):
             maze: 2D array of values describing walls for each cell.
 
         Returns:
-            String with characters to be preinted as cell elements.
+            String with characters to be printed as cell elements.
         """
         cell = maze[row][col]
 
@@ -204,6 +208,14 @@ class MazeText(Text):
 
     @staticmethod
     def get_path_text(bitmask: int | None) -> tuple[str, str, str]:
+        """Convert path directions into three cell text segments.
+
+        Args:
+            bitmask: Path direction flags, or None for an empty cell.
+
+        Returns:
+            Left, middle and right segments of the path cell.
+        """
         if bitmask is None:
             return WALL["empty"], WALL["empty"], WALL["empty"]
 
@@ -263,7 +275,11 @@ class MazeText(Text):
         self.append(WALL["entry"], style="maze.exit")
 
     def append_empty(self, width: int = 1) -> None:
-        """Add exit character to be printed. """
+        """Append empty cell characters.
+
+        Args:
+            width: Number of empty characters to append.
+        """
         self.append(WALL["empty"] * width, style="maze.exit")
 
     def append_nl(self) -> None:

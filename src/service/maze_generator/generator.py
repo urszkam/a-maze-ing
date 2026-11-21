@@ -1,13 +1,13 @@
 from __future__ import annotations
-
 from random import Random
 
 import numpy as np
 from typing import Iterator, TypeAlias
 
 from src.constants import LOGO42, Dir
-from src.model import Maze
-from src.service import MazeConfig, OutputHandler
+from .maze import Maze
+from .maze_config import MazeConfig
+from src.service import OutputHandler
 from .algorithms import AlgorithmType, MazeAlgorithm
 from .maze_solver import MazeSolver
 
@@ -24,28 +24,30 @@ class MazeGenerator:
         _solver (MazeSolver): Finds the shortest path from entry to exit.
         _logo_coords (list[Node]): Logo cells as (row, column) pairs.
             Empty if there is no logo.
-        _config (MazeConfig): Maze settings.
+        _config (MazeConfig): Validated maze generation settings.
         _rand (Random): Random number generator using the chosen seed.
         _output_handler (OutputHandler): Saves the maze to a file.
         _maze_algorithm (AlgorithmType): Algorithm used to create the maze.
         _logo_initialized (bool): True after finding the logo cells.
     """
 
-    def __init__(self, config: MazeConfig) -> None:
+    def __init__(self, config_data: dict[str, str]) -> None:
         """Initialize the maze generator instance.
 
         Args:
-            config: Maze settings, including
-                dimensions and entry and exit coordinates.
+            config_data: Dictionary of raw configuration values.
+
+        Raises:
+            ValidationError: When config data is incorrect
         """
+        self._initialize_maze_config(config_data)
+        self._register_algorithm(self._config.algorithm)
         self._maze: Maze | None = None
         self._solver = MazeSolver()
         self._logo_coords: list[Node] = []
-        self._config = config
-        self._rand = Random(config.seed)
+        self._rand = Random(self._config.seed)
         self._output_handler = OutputHandler(self._config.output_file)
         self._logo_initialized = False
-        self.register_algorithm(config.algorithm)
 
     @property
     def algorithm_name(self) -> str:
@@ -78,7 +80,7 @@ class MazeGenerator:
         """Return logo coordinates independently of the current wall masks."""
         return self._logo_coords
 
-    def register_algorithm(
+    def _register_algorithm(
             self,
             algorithm: AlgorithmType = AlgorithmType.KRUSKAL) -> None:
         """Select the initial algorithm.
@@ -87,6 +89,17 @@ class MazeGenerator:
             algorithm: Initial choice, used only when no algorithm is selected.
         """
         self._maze_algorithm = algorithm
+
+    def _initialize_maze_config(self, config_data: dict[str, str]) -> None:
+        """Validate and initialize maze config with configuration information.
+
+        Args:
+            config_data: dictionary with configuration data.
+
+        Raises:
+            ValidationError: When config data is incorrect.
+        """
+        self._config = MazeConfig.model_validate(config_data)
 
     def next_algorithm(self) -> None:
         """Select the next available algorithm."""
@@ -97,9 +110,6 @@ class MazeGenerator:
 
         Args:
             matrix: initial 2d array filled with number 15.
-
-        Raises:
-            RuntimeError: When config area is not enough for a proper maze.
         """
         logo42 = np.array(LOGO42)
         logo_rows, logo_cols = logo42.shape
@@ -161,10 +171,12 @@ class MazeGenerator:
         """Generate a maze using an algorithm.
 
         Returns:
-            2d maze array with binary walls representation.
+            Maze object containing walls, logo cells and the solution path.
 
         Raises:
             OSError: when the write operation cannot be completed
+            RuntimeError: If generation produces no frames or entry/exit
+                overlaps the logo.
         """
         maze: np.ndarray | None = None
 
@@ -241,10 +253,14 @@ class MazeGenerator:
             yield matrix.copy()
 
     def generate_path(self, walls: np.ndarray) -> list[Node]:
-        """ Generates the shortest path from entry to exit.
+        """Generate the shortest path from entry to exit.
+
+        Args:
+            walls: Matrix of cell wall bitmasks.
 
         Returns:
-            List of path coordinates
+            Path coordinates as (row, column) pairs, or an empty list
+            if the exit is unreachable.
         """
         return self._solver.find_shortest_path(
             walls, self.entry, self.exit
@@ -285,7 +301,7 @@ class MazeGenerator:
         """Convert maze walls to hexadecimal digits.
 
         Returns:
-            String contining one line per maze row
+            String containing one line per maze row
             or an empty string if there is no maze.
         """
         if not self._maze:

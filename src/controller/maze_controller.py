@@ -7,16 +7,17 @@ from rich.console import Group
 from rich.live import Live
 from rich.text import Text
 
-from ..model import Maze
-from ..service import MazeGenerator, MazeConfig
+from ..service.maze_generator.maze import Maze
+from ..service import MazeGenerator, InputHandler
 from ..constants import MENU, WALL, WIDTH, Dir
 from .console_printer import ConsolePrinter, MazeText
-
 
 cp = ConsolePrinter()
 
 
 class MenuOption(IntEnum):
+    """Map menu numbers to maze interface actions."""
+
     REGENERATE = 1
     SHOW_HIDE = 2
     ROTATE_WALL_COLORS = 3
@@ -30,7 +31,7 @@ def _choose_option() -> tuple[MenuOption | None, str]:
 
     Returns:
         Chosen MenuOption or None in case of incorrect choice.
-        Error mesage in case of incorrect choice.
+        Error message in case of incorrect choice.
     """
     key = readkey()
     try:
@@ -171,8 +172,11 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
 
     Raises:
         OSError: when the write operation cannot be completed
+        RuntimeError: If generation produces no frames or entry/exit
+            overlaps the logo.
     """
     path_visible: bool = cp.show_hide_path(False)
+    maze_text: MazeText | None = None
     for frame in generator.generate_maze_frames():
         maze = generator.store_maze(frame)
         maze_text = _display_maze(maze)
@@ -181,6 +185,9 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
         sleep(0.01)
     cp.show_hide_path(path_visible)
 
+    if maze_text is None:
+        raise RuntimeError("Maze generation produced no frames.")
+
     return maze_text
 
 
@@ -188,21 +195,25 @@ def run_app(config_file: str) -> int:
     """Run the maze TUI application.
 
     Args:
-        config: TODO placeholder for tests.
+        config_file: name of the file with configuration data.
+
+    Returns:
+        1 if ends with error, otherwise 0
     """
     try:
-        maze_config: MazeConfig = MazeConfig.from_file(config_file)
+        config_data: dict[str, str] = InputHandler.get_config_data(config_file)
     except (OSError, UnicodeError) as e:
         cp.error(f"{e}")
         return 1
+
+    try:
+        generator = MazeGenerator(config_data)
     except ValidationError as e:
         cp.error("Config Validation Error(s):")
         for error in e.errors():
             field = f"{error['loc'][0]}: " if error['loc'] else ""
             cp.error(f"  - {field}{error['msg']}")
         return 1
-
-    generator = MazeGenerator(maze_config)
 
     option: MenuOption | None = None
     error_msg = ""

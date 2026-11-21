@@ -217,6 +217,20 @@ This creates loops and offers multiple possible routes through the maze.
 If no suitable neighbour exists (in case of cells neighboring with the logo), the dead end is left unchanged.
 
 ### Path Generation
+The shortest path from the entry to the exit point is computed using the 
+MazeSolver class, which implements Breadth-First Search (BFS).
+
+The class uses a double-ended queue (deque) to explore reachable neighboring 
+cells level by level, guaranteeing that the first time the exit cell is popped, 
+the shortest path has been found. For each current cell, the solver evaluates the 
+cell's wall bitmask (Dir.N, Dir.S, Dir.W, Dir.E) to verify which adjacent 
+directions have open passages.
+
+A visited set prevents duplicate visits, and a parent_map dictionary keeps track 
+of the predecessor for each node. Once the exit is reached, the algorithm backtracks 
+from the exit node to the entry node using the parent_map, reverses the sequence, and 
+returns an ordered list of coordinate nodes representing the path (or an empty list 
+if unreachable).
 
 ## Package
 • What part of your code is reusable, and how
