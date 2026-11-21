@@ -170,9 +170,11 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
 
     Raises:
         OSError: when the write operation cannot be completed
-        RuntimeError: If entry or exit overlaps the logo.
+        RuntimeError: If generation produces no frames or entry/exit
+            overlaps the logo.
     """
     path_visible: bool = cp.show_hide_path(False)
+    maze_text: MazeText | None = None
     for frame in generator.generate_maze_frames():
         maze = generator.store_maze(frame)
         maze_text = _display_maze(maze)
@@ -180,6 +182,9 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
             maze_text, generator.algorithm_name), refresh=True)
         sleep(0.01)
     cp.show_hide_path(path_visible)
+
+    if maze_text is None:
+        raise RuntimeError("Maze generation produced no frames.")
 
     return maze_text
 
