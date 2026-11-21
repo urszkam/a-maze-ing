@@ -223,7 +223,13 @@ class PrimAlgorithm(MazeAlgorithm):
         frontier: dict[Edge, Node] = {}
 
         def add_frontier_neighbors(node: Node) -> None:
-            """Add edges from the given cell to unvisited grid neighbors."""
+            """Add edges from the given cell to unvisited grid neighbors.
+
+            Update the frontier mapping in place, excluding logo cells.
+
+            Args:
+                node: Visited cell whose neighbors should be considered.
+            """
             r, c = node
             for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                 neighbor = (r + dr, c + dc)
