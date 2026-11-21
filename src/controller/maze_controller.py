@@ -170,6 +170,7 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
 
     Raises:
         OSError: when the write operation cannot be completed
+        RuntimeError: If entry or exit overlaps the logo.
     """
     path_visible: bool = cp.show_hide_path(False)
     for frame in generator.generate_maze_frames():

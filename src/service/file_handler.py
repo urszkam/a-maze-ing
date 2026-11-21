@@ -15,6 +15,8 @@ class InputHandler:
 
         Raises:
             FileNotFoundError: If the specified config file does not exist.
+            OSError: If the configuration file cannot be opened or read.
+            UnicodeDecodeError: If the configuration file is not valid UTF-8.
         """
         path = Path(file_path)
         if not path.exists():
