@@ -43,8 +43,8 @@ The program takes one argument with a dictionary of configuration
 values as strings.
 The config consist of several mandatory and optional fields.
 Mandatory fields:
-- **width** (int) - number of maze rows, eg. 7
-- **height** (int) - number of maze columns, eg. 12
+- **width** (int) - number of maze columns, eg. 7
+- **height** (int) - number of maze rows, eg. 12
 - **entry** (tuple[int, int]) - x, y coordinates of the path start cell, eg. (11,8)
 - **exit** (tuple[int, int]) - x, y coordinates of the path end cell, eg. (0,3)
 - **output_file** (str) - name of the output file where the final maze data is saved,
