@@ -253,6 +253,16 @@ class MazeGenerator:
             yield Maze(matrix.copy(), self._logo_coords, [],
                        self.entry, self.exit)
 
+        for row in range(matrix.shape[0] - 2):
+            for col in range(matrix.shape[1] - 2):
+                area = matrix[row:row + 3, col:col + 3]
+
+                if not np.any(area[:, :2] & Dir.E) and not np.any(
+                    area[:2, :] & Dir.S
+                ):
+                    matrix[row, col] |= Dir.E
+                    matrix[row, col + 1] |= Dir.W
+
         self._store_maze(matrix)
 
     def generate_path(self, walls: np.ndarray) -> list[Node]:
