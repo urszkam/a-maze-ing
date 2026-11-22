@@ -41,12 +41,13 @@ The text representation of a maze is displayed in the terminal with an interacti
 The application shows the current maze-generation algorithm and lets the user regenerate the
 maze, change its colors, show or hide the path or switch to the other algorithm.
 
+
 <table>
   <tr>
     <td align="center">
-      <strong>Placeholder for program visualization</strong><br><br>
-      <img src="https://placeholder" alt="placeholder"><br>
-      Source: <a href="placeholder">Wikipedia</a>
+      <strong>Program visualization</strong><br><br>
+      <img src="https://www.image2url.com/r2/default/images/1795344774766-e1eed246-21c7-494f-ad18-b22f1e240e5d.png"
+        alt="program visualization"><br>
     </td>
   </tr>
 </table>
@@ -165,6 +166,11 @@ between which the user can switch while using the application.
 Both algorithms share the same braiding step, 
 which removes dead ends after the maze has been generated.
 
+We chose these algorithms because they let us build the maze by considering
+each possible passage separately without loops for perfect maze. 
+The algorithms compliment each other as can be visible in the way
+the mazes are animated during the generation.
+
 #### Prim's Algorithm
 
 Prim’s algorithm works by starting from an arbitrary vertex, adding the edge 
@@ -192,11 +198,6 @@ These connections are shuffled, then checked one by one.
 A connection is opened only when the two cells belong to different groups. 
 The groups are then joined together. 
 This builds the maze without creating loops.
-
-We chose Kruskal's algorithm because it lets us build the maze by considering
-each possible passage separately. 
-Shuffling the passages gives every maze a different layout, 
-while grouping cells ensures that passages are added without creating cycles.
 
 <table>
   <tr>
@@ -300,3 +301,8 @@ The table below presents how the tasks were distributed between team members acr
 | **I Iteration** | Input parsing, configuration loading and validation | Basic application flow with visualization, without implementing advanced features |
 | **II Iteration** | Implementation of Algorithm X for maze generation and a shortest-path finding algorithm | Implementation of Kruskal's algorithm for maze generation, a dead-end removal algorithm and animation improvements |
 | **III Iteration** | Improve config loading and creation of a maze generation package | Path visualization, documentation, output generation, unit tests |
+
+
+We used GitHub for version control and code collaboration and Slack for team
+communication. A better introduction to working together on GitHub at the start
+of the project would have helped us collaborate more smoothly.
