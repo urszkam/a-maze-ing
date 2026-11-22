@@ -260,8 +260,8 @@ class MazeGenerator:
                 if not np.any(area[:, :2] & Dir.E) and not np.any(
                     area[:2, :] & Dir.S
                 ):
-                    matrix[row, col] |= Dir.E
-                    matrix[row, col + 1] |= Dir.W
+                    matrix[row + 1, col] |= Dir.E
+                    matrix[row + 1, col + 1] |= Dir.W
 
         self._store_maze(matrix)
 
