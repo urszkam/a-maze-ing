@@ -36,33 +36,33 @@ The program generates an output file that consists of maze information:
 - pip
 
 ### Install the package
-Navigate to the project directory where pyproject.toml file
-is present and run
+Navigate to the project directory and run
 ```bash
-pip install mazegen.whl
+pip install mazegen-0.1.0-py3-none-any.whl
 ```
 
 ### Usage
 ```Python
-from mazegen.generator import MazeGenerator
+from mazegen.generator import MazeGenerator, Mazegen
 
 config = {
-    "width": 15,
-    "height": 10,
+    "width": "15",
+    "height": "10",
     "entry": "0,0",
     "exit": "14,9",
     "output_file": "maze_output.txt",
-    "perfect": True,
+    "perfect": "True",
     "algorithm": "Prim"
 }
 
 generator = MazeGenerator(config)
-completed_maze = generator.generate_maze()
+completed_maze: Maze = generator.generate_maze()
 print("Solution path:", completed_maze.path)
 ```
 
 ### Config
-The config consist of several mandatory and optional fields.
+The config consist of several mandatory and optional fields 
+that needs to be provided as strings.
 Mandatory fields:
 - **width** (int) - number of maze columns, eg. 7
 - **height** (int) - number of maze rows, eg. 12
@@ -78,25 +78,21 @@ Optional fields:
 - **algorithm** (str) - name of the maze generation algorithm, either Prim or Kruskal
 
 ## Core Classes & Functions
-### MazeConfig (maze_config.py)
-Parses and validates configuration parameters using Pydantic.   
-- **parse_coordinates:** Converts string-based coordinates (e.g., "0,0") into proper integer tuples before validation.   
-- **validate_coordinates:** Applies business rules to ensure entry and exit coordinates fall strictly within grid dimensions and do not overlap with each other.   
 
-### MazeGenerator (generator.py)
-Manages the lifecycle of the maze, configuration settings, and algorithm execution.   
+### MazeGenerator
+Manages the lifecycle of the maze, configuration settings and algorithm execution
+- attributes: **entry, exit, algorithm_name**
 - **generate_maze_frames():** Yields incremental np.ndarray snapshots of the grid as walls are carved out, allowing step-by-step progress tracking.   
 - **generate_maze():** Runs all generation frames to completion and returns the final Maze object.   
 - **store_maze():** Computes the solution path, builds the Maze instance, and triggers output file writing.   
 - **next_algorithm():** Switches between available generation algorithms dynamically.   
 
-### MazeSolver (maze_solver.py)
-Handles pathfinding computations.   
-- **find_shortest_path():** Implements Breadth-First Search (BFS) using a double-ended queue (deque) and wall bitmasks to locate and backtrack the shortest path from entry to exit.   
 
-### Maze (maze.py)
-Data container holding the completed maze state and analytical helper methods.   
-- **is_logo() / is_entry() / is_exit() / is_path():** Boolean utility checkers that identify specific cell roles within the grid.   
+### Maze
+Data container holding the completed maze state and analytical helper methods.
+- attributes: **entry, exit, path, logo_coords, walls**
+- **is_logo() / is_entry() / is_exit() / is_path():** Boolean utility checkers 
+that identify specific cell roles within the grid.   
 - **get_wall():** Returns the integer bitmask representing walls for a specific cell.   
 - **get_full_path_bitmask():** Compiles cell direction bitmasks sequentially along the solution path. 
 

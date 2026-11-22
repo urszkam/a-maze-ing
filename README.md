@@ -233,24 +233,30 @@ returns an ordered list of coordinate nodes representing the path (or an empty l
 if unreachable).
 
 ## Package
-The core backend logic (maze configuration parsing, generation algorithms, frame yielding, and pathfinding algorithm) is made into a reusable package structure in form of a Python wheel (.whl), which can be integrated into external tools or scripts. 
+The core backend logic (maze configuration parsing, generation algorithms, frame yielding and pathfinding algorithm) is made into a reusable package structure in form of a Python wheel (.whl), which can be integrated into external tools or scripts. 
 
 ### Usage
+
+Navigate to the project directory and run
+```bash
+pip install mazegen-0.1.0-py3-none-any.whl
+```
+
 ```Python
-from mazegen.generator import MazeGenerator
+from mazegen.generator import MazeGenerator, Maze
 
 config = {
-    "width": 15,
-    "height": 10,
+    "width": "15",
+    "height": "10",
     "entry": "0,0",
     "exit": "14,9",
     "output_file": "maze_output.txt",
-    "perfect": True,
+    "perfect": "True",
     "algorithm": "Prim"
 }
 
 generator = MazeGenerator(config)
-completed_maze = generator.generate_maze()
+completed_maze: Maze = generator.generate_maze()
 print("Solution path:", completed_maze.path)
 ```
 
