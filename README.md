@@ -244,7 +244,7 @@ pip install mazegen-0.1.0-py3-none-any.whl
 ```
 
 ```Python
-from mazegen.generator import MazeGenerator, Maze
+from mazegen import MazeGenerator, Maze
 
 config = {
     "width": "15",
