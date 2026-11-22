@@ -1,6 +1,7 @@
 SCRIPT	= a_maze_ing.py
 CONFIG	= config.txt
 UV		= uv run
+LIB		= ./mazegen-0.1.0-py3-none-any.whl
 
 install:
 	pip install -r requirements.txt
@@ -19,5 +20,8 @@ lint:
 lint-strict:
 	${UV} flake8 .
 	${UV} mypy . --strict
+package:
+	uv build --wheel ./mazegen -o .
+	uv pip install ${LIB}
 
-.PHONY: install run debug test clean lint lint-strict
+.PHONY: install run debug test clean lint lint-strict package

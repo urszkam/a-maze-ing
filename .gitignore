@@ -13,6 +13,11 @@ __pycache__/
 .venv/
 venv/
 
+# Package build artifacts
+build/
+dist/
+*.egg-info/
+
 # Maze output
 maze.txt
 
