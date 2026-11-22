@@ -165,6 +165,12 @@ between which the user can switch while using the application.
 Both algorithms share the same braiding step, 
 which removes dead ends after the maze has been generated.
 
+We chose these algorithms because they let us build the maze by considering
+each possible passage separately without loops for perfect maze. 
+The algorithms compliment each other as can be visible in the way
+the mazes are animated during the generation.
+
+
 #### Prim's Algorithm
 
 Prim’s algorithm works by starting from an arbitrary vertex, adding the edge 
@@ -192,11 +198,6 @@ These connections are shuffled, then checked one by one.
 A connection is opened only when the two cells belong to different groups. 
 The groups are then joined together. 
 This builds the maze without creating loops.
-
-We chose Kruskal's algorithm because it lets us build the maze by considering
-each possible passage separately. 
-Shuffling the passages gives every maze a different layout, 
-while grouping cells ensures that passages are added without creating cycles.
 
 <table>
   <tr>
@@ -278,3 +279,7 @@ The table below presents how the tasks were distributed between team members acr
 
 Splitting the work into short iterations helped us develop the generator and
 terminal interface in parallel and review progress regularly.
+
+We used GitHub for version control and code collaboration and Slack for team
+communication. A better introduction to working together on GitHub at the start
+of the project would have helped us collaborate more smoothly.

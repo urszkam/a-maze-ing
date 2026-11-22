@@ -22,6 +22,5 @@ lint-strict:
 	${UV} mypy . --strict
 package:
 	uv build --wheel ./mazegen -o .
-	uv pip install ${LIB}
 
 .PHONY: install run debug test clean lint lint-strict package

@@ -19,6 +19,7 @@ class InputHandler:
             FileNotFoundError: If the specified config file does not exist.
             OSError: If the configuration file cannot be opened or read.
             UnicodeDecodeError: If the configuration file is not valid UTF-8.
+            ValueError: If a non-empty, non-comment line has no '=' separator.
         """
         path = Path(file_path)
         if not path.exists():
@@ -27,13 +28,18 @@ class InputHandler:
 
         config_data: dict[str, str] = {}
         with open(path, "r", encoding="utf-8") as file:
-            for line in file:
+            for line_number, line in enumerate(file, start=1):
                 line = line.strip()
                 if not line or line.startswith("#"):
                     continue
                 if "=" in line:
                     key, value = line.split("=", 1)
                     config_data[key.strip().lower()] = value.strip()
+                else:
+                    raise ValueError(
+                        f"Invalid configuration at line {line_number}: "
+                        "expected KEY=VALUE."
+                    )
         return config_data
 
 
