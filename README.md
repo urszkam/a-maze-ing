@@ -126,7 +126,7 @@ Mandatory fields:
 - **HEIGHT** (int) - number of maze rows, eg. 12
 - **ENTRY** (tuple[int, int]) - x, y coordinates of the path start cell, eg. (11,8)
 - **EXIT** (tuple[int, int]) - x, y coordinates of the path end cell, eg. (0,3)
-- **OUTPUT_FILE** (str) - name of the output file where the final maze data is saved,
+- **OUTPUT_NAME** (str) - name of the output file where the final maze data is saved,
   eg. maze.txt
 
 Optional fields:
@@ -273,8 +273,4 @@ The table below presents how the tasks were distributed between team members acr
 |---|---|---|
 | **I Iteration** | Input parsing, configuration loading and validation | Basic application flow with visualization, without implementing advanced features |
 | **II Iteration** | Implementation of Algorithm X for maze generation and a shortest-path finding algorithm | Implementation of Kruskal's algorithm for maze generation, a dead-end removal algorithm and animation improvements |
-| **III Iteration** | Improve config loading and creation of a maze generation package | Path visualization, documentation, output generation |
-
-
-Splitting the work into short iterations helped us develop the generator and
-terminal interface in parallel and review progress regularly.
+| **III Iteration** | Improve config loading and creation of a maze generation package | Path visualization, documentation, output generation, unit tests |

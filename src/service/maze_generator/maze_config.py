@@ -95,25 +95,3 @@ class MazeConfig(BaseModel):
             raise ValueError("ENTRY and EXIT must be different locations.")
 
         return self
-
-    @model_validator(mode="after")
-    def validate_non_perfect_size(self) -> "MazeConfig":
-        """Reject non-perfect grids too small for two independent loops.
-
-        Returns:
-            The validated configuration.
-
-        Raises:
-            ValueError: If a non-perfect grid is one cell wide or high,
-                or has only two rows and two columns.
-        """
-        if not self.perfect and (
-            self.width == 1 or self.height == 1
-            or (self.width == 2 and self.height == 2)
-        ):
-            raise ValueError(
-                "PERFECT=False requires space for at least two independent "
-                "loops: WIDTH and HEIGHT must be at least 2, "
-                "and a 2x2 grid is not supported."
-            )
-        return self
