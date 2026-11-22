@@ -210,7 +210,10 @@ def _animate_maze(live: Live, generator: MazeGenerator) -> MazeText:
 
 
 def run_app(config_file: str) -> int:
-    """Run the maze TUI application.
+    """Run the maze TUI application and report configuration errors.
+
+    File reading, encoding and configuration syntax errors are displayed
+    to the user and cause the application to return 1.
 
     Args:
         config_file: name of the file with configuration data.
@@ -220,7 +223,7 @@ def run_app(config_file: str) -> int:
     """
     try:
         config_data: dict[str, str] = InputHandler.get_config_data(config_file)
-    except (OSError, UnicodeError) as e:
+    except (OSError, UnicodeError, ValueError) as e:
         cp.error(f"{e}")
         return 1
 
