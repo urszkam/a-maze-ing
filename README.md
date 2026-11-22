@@ -1,6 +1,6 @@
 *This project has been created as part of the 42 curriculum by urkamins, vijain.*
 
-## # Table of Contents
+## Table of Contents
 - [Description](#description)
     - [Maze Generation](#maze-generation)
     - [Visualization](#visualization)
@@ -32,7 +32,7 @@ This project is a terminal application that generates and displays a maze with
 a 42 logo. The user can interact with the generated maze through a simple numbered menu.
 
 ### Maze Generation
-The maze is generated using one of two availabl algorithms creating a perfect maze 
+The maze is generated using one of two available algorithms creating a perfect maze 
 and then optionally removing dead ends for braided mazes. 
 The generation process of passage openings between neighbouring cells is animated in the terminal.
 
@@ -44,9 +44,9 @@ maze, change its colors, show or hide the path or switch to the other algorithm.
 <table>
   <tr>
     <td align="center">
-      <strong>Program visualization</strong><br><br>
-      <img src="https://www.image2url.com/r2/default/images/1795344774766-e1eed246-21c7-494f-ad18-b22f1e240e5d.png"
-        alt="program visualization"><br>
+      <strong>Placeholder for program visualization</strong><br><br>
+      <img src="https://placeholder" alt="placeholder"><br>
+      Source: <a href="placeholder">Wikipedia</a>
     </td>
   </tr>
 </table>
@@ -56,7 +56,7 @@ maze, change its colors, show or hide the path or switch to the other algorithm.
 The program generates an output file that consists of maze information:
 - hexadecimal representation of the maze where the value informs of existing walls of each consecutive cell
 - coordinates of entry and exit
-- the entry -> exit path in a form of a list of directions
+- the shortest entry -> exit path in a form of a list of directions
 
 ### Bonus Features
 The project also includes the following additional features:
@@ -96,11 +96,11 @@ make run
 
 The command executes 
 ```bash
-    uv run python3 a_maze_ing.py config.txt`
+uv run python3 a_maze_ing.py config.txt`
 ```
 uv run uses the project's virtual environment automatically. 
 - a_maze_ing.py argument is the Python script, 
-- context.txt argument is the configuration file used to create the maze.
+- config.txt argument is the configuration file used to create the maze.
 
 After the maze is generated, use the displayed keys to choose an action.
 
@@ -126,7 +126,7 @@ Mandatory fields:
 - **HEIGHT** (int) - number of maze rows, eg. 12
 - **ENTRY** (tuple[int, int]) - x, y coordinates of the path start cell, eg. (11,8)
 - **EXIT** (tuple[int, int]) - x, y coordinates of the path end cell, eg. (0,3)
-- **OUTPUT_FILE** (str) - name of the output file where the final maze data is saved,
+- **OUTPUT_NAME** (str) - name of the output file where the final maze data is saved,
   eg. maze.txt
 
 Optional fields:
@@ -165,12 +165,6 @@ between which the user can switch while using the application.
 Both algorithms share the same braiding step, 
 which removes dead ends after the maze has been generated.
 
-We chose these algorithms because they let us build the maze by considering
-each possible passage separately without loops for perfect maze. 
-The algorithms compliment each other as can be visible in the way
-the mazes are animated during the generation.
-
-
 #### Prim's Algorithm
 
 Prim’s algorithm works by starting from an arbitrary vertex, adding the edge 
@@ -188,7 +182,7 @@ until all vertices have been included in the tree.
   </tr>
 </table>
 
-The time complexity of Prims's Algorithm is: O(n log(n)), where n is the number of nodes(cells).
+The time complexity of Prim's Algorithm is: O(n log(n)), where n is the number of nodes(cells).
 
 #### Kruskal's Algorithm
 
@@ -198,6 +192,11 @@ These connections are shuffled, then checked one by one.
 A connection is opened only when the two cells belong to different groups. 
 The groups are then joined together. 
 This builds the maze without creating loops.
+
+We chose Kruskal's algorithm because it lets us build the maze by considering
+each possible passage separately. 
+Shuffling the passages gives every maze a different layout, 
+while grouping cells ensures that passages are added without creating cycles.
 
 <table>
   <tr>
@@ -234,9 +233,35 @@ returns an ordered list of coordinate nodes representing the path (or an empty l
 if unreachable).
 
 ## Package
-• What part of your code is reusable, and how
+The core backend logic (maze configuration parsing, generation algorithms, frame yielding and pathfinding algorithm) is made into a reusable package structure in form of a Python wheel (.whl), which can be integrated into external tools or scripts. 
+
 ### Usage
+
+Navigate to the project directory and run
+```bash
+pip install mazegen-0.1.0-py3-none-any.whl
+```
+
+```Python
+from mazegen.generator import MazeGenerator, Maze
+
+config = {
+    "width": "15",
+    "height": "10",
+    "entry": "0,0",
+    "exit": "14,9",
+    "output_file": "maze_output.txt",
+    "perfect": "True",
+    "algorithm": "Prim"
+}
+
+generator = MazeGenerator(config)
+completed_maze: Maze = generator.generate_maze()
+print("Solution path:", completed_maze.path)
+```
+
 ### License
+The package is licensed under the MIT License (see the LICENSE file), permitting free modification, distribution, and commercial use.
 
 ## Resources
 
@@ -274,12 +299,4 @@ The table below presents how the tasks were distributed between team members acr
 |---|---|---|
 | **I Iteration** | Input parsing, configuration loading and validation | Basic application flow with visualization, without implementing advanced features |
 | **II Iteration** | Implementation of Algorithm X for maze generation and a shortest-path finding algorithm | Implementation of Kruskal's algorithm for maze generation, a dead-end removal algorithm and animation improvements |
-| **III Iteration** | Improve config loading and creation of a maze generation package | Path visualization, documentation, output generation |
-
-
-Splitting the work into short iterations helped us develop the generator and
-terminal interface in parallel and review progress regularly.
-
-We used GitHub for version control and code collaboration and Slack for team
-communication. A better introduction to working together on GitHub at the start
-of the project would have helped us collaborate more smoothly.
+| **III Iteration** | Improve config loading and creation of a maze generation package | Path visualization, documentation, output generation, unit tests |
