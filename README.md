@@ -44,9 +44,9 @@ maze, change its colors, show or hide the path or switch to the other algorithm.
 <table>
   <tr>
     <td align="center">
-      <strong>Placeholder for program visualization</strong><br><br>
-      <img src="https://placeholder" alt="placeholder"><br>
-      Source: <a href="placeholder">Wikipedia</a>
+      <strong>Program visualization</strong><br><br>
+      <img src="https://www.image2url.com/r2/default/images/1795344774766-e1eed246-21c7-494f-ad18-b22f1e240e5d.png"
+        alt="program visualization"><br>
     </td>
   </tr>
 </table>

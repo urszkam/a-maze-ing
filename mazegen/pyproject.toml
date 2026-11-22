@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,7 +7,8 @@ name = "mazegen"
 version = "0.1.0"
 description = "Reusable maze generator and solver"
 readme = "README.md"
-license = { file = "LICENSE.md" }
+license = "MIT"
+license-files = ["LICENSE.md"]
 authors = [
     { name = "Ula Kaminska", email = "urkamins@student.42warsaw.pl" },
     { name = "Vineet Jain", email = "vijain@student.42warsaw.pl" }
